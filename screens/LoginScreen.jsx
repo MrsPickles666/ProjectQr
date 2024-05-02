@@ -1,8 +1,6 @@
-// components/LoginScreen.js
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Icon, Input } from 'react-native-elements';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -11,13 +9,34 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      setErrorMessage('Por favor, completa todos los campos.');
-      return;
-    }
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/usuario/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
 
-    navigation.navigate('Home');
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Si la respuesta es exitosa, redirige al usuario a la pantalla de inicio
+        navigation.navigate('Home');
+      } else {
+        // Si hay un error en la respuesta, muestra un mensaje de error
+        setErrorMessage(data.message || 'Ocurrió un error durante el inicio de sesión.');
+      }
+    } catch (error) {
+      // Si hay un error en la solicitud, muestra un mensaje de error
+      console.error('Error de red:', error);
+      setErrorMessage('Ocurrió un error de red. Por favor, intenta nuevamente.');
+    }
   };
 
   const handleRegisterLink = () => {
@@ -27,32 +46,27 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.tittle}>Inicio De Sesión</Text>
-      <Input style={styles.BoxInput}
+      <TextInput
+        style={styles.input}
         placeholder="Correo electrónico"
-        leftIcon={<Icon name='email' />}
         onChangeText={(text) => setEmail(text)}
         value={email}
         keyboardType="email-address"
         autoCapitalize="none"
       />
-
-      <Input style={styles.BoxInput}
+      <TextInput
+        style={styles.input}
         placeholder="Contraseña"
-        leftIcon={<Icon name='lock' />}
         onChangeText={(text) => setPassword(text)}
         value={password}
         secureTextEntry
         autoCapitalize="none"
       />
-
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       <TouchableOpacity onPress={handleRegisterLink}>
         <Text style={styles.registerLink}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
-
-      <View style={styles.boton}>
-        <Button title="Listo" onPress={handleLogin}  color={'#39A900'}/>
-      </View>
+      <Button title="Iniciar Sesión" onPress={handleLogin} color={'#39A900'} />
     </View>
   );
 };
@@ -63,34 +77,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
   },
+  input: {
+    marginBottom: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+  },
   errorText: {
     color: 'red',
-    marginTop: 10,
+    marginBottom: 16,
   },
   registerLink: {
-    marginTop: 16,
+    marginBottom: 16,
     textAlign: 'center',
     color: '#39A900',
     textDecorationLine: 'underline',
   },
   tittle: {
-    top: -100,
-    fontSize: 30,
+    marginBottom: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#39A900',
     textAlign: 'center',
-  },
-  boton: {
-    marginTop: 16,
-    color: '#39A900',
-    width: 100,
-    height: 'auto',
-    backgroundColor: '#39A900',
-    borderRadius: 10,
-    padding: 5,
-    position: 'relative',
-    justifyContent: 'center',
-    alignSelf: 'center'
   },
 });
 

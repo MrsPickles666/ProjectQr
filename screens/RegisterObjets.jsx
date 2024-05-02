@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-import ComponentPantallas from './ComponentPantallas';
+import ComponentPantallas from '../components/ComponentPantallas';
 
 const RegisterObjets = () => {
     return (

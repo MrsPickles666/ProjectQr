@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import ComponentPantallas from './ComponentPantallas';
+import ComponentPantallas from '../components/ComponentPantallas';
 import { Icon, Input } from 'react-native-elements';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';

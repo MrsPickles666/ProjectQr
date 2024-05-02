@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import ComponentPantallas from './ComponentPantallas';
+import ComponentPantallas from '../components/ComponentPantallas';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';

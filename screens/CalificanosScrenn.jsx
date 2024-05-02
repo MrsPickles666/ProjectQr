@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
-import ComponentPantallas from './ComponentPantallas';
+import ComponentPantallas from '../components/ComponentPantallas';
 
 const CalificanosScreen = () => {
     const navigation = useNavigation();

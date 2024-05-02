@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Input, } from 'react-native-elements';
-import ComponentPantallas from './ComponentPantallas';
+import ComponentPantallas from '../components/ComponentPantallas';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
-const Inventario = () => {
+
+const EditarObjets = () => {
     const navigation = useNavigation();
 
     const navigateToHome = () => {
@@ -13,7 +14,7 @@ const Inventario = () => {
     return (
         <View style={styles.body}>
             <View style={styles.header}>
-                <Text style={styles.headerText}>Inventario</Text>
+                <Text style={styles.headerText}>Editar objetos</Text>
             </View>
             <ScrollView style={styles.scroll}>
                 <View style={styles.info}>
@@ -88,6 +89,7 @@ const styles = StyleSheet.create({
     body: {
         flex: 1,
         backgroundColor: 'rgb(236, 236, 236)',
+
     },
     header: {
         backgroundColor: 'green',
@@ -135,4 +137,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Inventario;
+export default EditarObjets;
