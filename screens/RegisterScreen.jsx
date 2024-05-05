@@ -8,7 +8,7 @@ const RegisterScreen = () => {
 
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [documentType, setDocumentType] = useState('DNI');
+  const [documentType, setDocumentType] = useState('');
   const [documentNumber, setDocumentNumber] = useState('');
   const [position, setPosition] = useState('');
   const [role, setRole] = useState('');
@@ -16,7 +16,6 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
 
   const handleRegister = () => {
-  
     console.log('Registro exitoso:', {
       name,
       lastName,
@@ -27,105 +26,120 @@ const RegisterScreen = () => {
       email,
       password,
     });
-
-    navigation.navigate('Login'); 
+    navigation.navigate('Login');
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Registro</Text>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.containerForm} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>Registro</Text>
+        <Input
+          placeholder='Nombre'
+          leftIcon={{ type: 'font-awesome', name: 'user' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={setName}
+          value={name}
+        />
+        
+        <Input
+          placeholder='Apellido'
+          leftIcon={{ type: 'font-awesome', name: 'user' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setLastName(text)}
+          value={lastName}
+        />
 
-      <Input
-        placeholder='Nombre'
-        leftIcon={{ type: 'font-awesome', name: 'user' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setName(text)}
-        value={name}
-      />
+        <Input
+          placeholder='Tipo de Documento'
+          leftIcon={{ type: 'font-awesome', name: 'id-card' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setDocumentType(text)}
+          value={documentType}
+        />
 
-      <Input
-        placeholder='Apellido'
-        leftIcon={{ type: 'font-awesome', name: 'user' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setLastName(text)}
-        value={lastName}
-      />
+        <Input
+          placeholder='Número de Documento'
+          leftIcon={{ type: 'font-awesome', name: 'id-card' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setDocumentNumber(text)}
+          value={documentNumber}
+          keyboardType="numeric"
+        />
 
-      <Input
-        placeholder='Tipo de Documento'
-        leftIcon={{ type: 'font-awesome', name: 'id-card' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setDocumentType(text)}
-        value={documentType}
-      />
+        <Input
+          placeholder='Cargo'
+          leftIcon={{ type: 'font-awesome', name: 'briefcase' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setPosition(text)}
+          value={position}
+        />
 
-      <Input
-        placeholder='Número de Documento'
-        leftIcon={{ type: 'font-awesome', name: 'id-card' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setDocumentNumber(text)}
-        value={documentNumber}
-        keyboardType="numeric"
-      />
+        <Input
+          placeholder='Rol'
+          leftIcon={{ type: 'font-awesome', name: 'users' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setRole(text)}
+          value={role}
+        />
 
-      <Input
-        placeholder='Cargo'
-        leftIcon={{ type: 'font-awesome', name: 'briefcase' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setPosition(text)}
-        value={position}
-      />
-
-      <Input
-        placeholder='Rol'
-        leftIcon={{ type: 'font-awesome', name: 'users' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setRole(text)}
-        value={role}
-      />
-
-      <Input
-        placeholder='Email'
-        leftIcon={{ type: 'font-awesome', name: 'envelope' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-        keyboardType="email-address"
-      />
-
-      <Input
-        placeholder='Contraseña'
-        leftIcon={{ type: 'font-awesome', name: 'lock' }}
-        containerStyle={styles.inputContainer}
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        secureTextEntry
-      />
-      <View style={styles.boton}>
-        <Button title="Listo" onPress={handleRegister} color={'#39A900'} />
-      </View>
-    </ScrollView>
+        <Input
+          placeholder='Email'
+          leftIcon={{ type: 'font-awesome', name: 'envelope' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          keyboardType="email-address"
+        />
+        <Input
+          placeholder='Contraseña'
+          leftIcon={{ type: 'font-awesome', name: 'lock' }}
+          containerStyle={styles.inputContainer}
+          onChangeText={setPassword}
+          value={password}
+          secureTextEntry
+        />
+        <View style={styles.boton}>
+          <Button title="Listo" onPress={handleRegister} color={'#39A900'} />
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#ECECEC',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  scrollContainer: {
+    flex: 1,
+    maxHeight: 500,
+    borderRadius: 25,
+    backgroundColor: 'white',
+    alignSelf: 'center',
+    width: '95%',
+  },
+  containerForm: {
+    flexGrow: 1,
+    padding: 20,
+    justifyContent: 'center'
+  },
+  
   inputContainer: {
     padding: 16,
     marginBottom: 16,
   },
   title: {
     fontSize: 30,
-
     fontWeight: 'bold',
     color: '#39A900',
     textAlign: 'center',
+    marginBottom: '20%',
   },
   boton: {
-
     width: 100,
     height: 'auto',
     backgroundColor: '#39A900',

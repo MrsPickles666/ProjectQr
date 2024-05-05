@@ -64,9 +64,8 @@ const styles = StyleSheet.create({
         right: 20,
     },
     icon: {
-        flex: 1,
         fontSize: 50,
-        top: 145,
+        top: 85,
         color: 'black',
     },
     text: {

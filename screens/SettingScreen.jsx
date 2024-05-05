@@ -1,67 +1,65 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import ComponentPantallas from '../components/ComponentPantallas';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import { Button } from 'react-native-elements';
 
 const SettingScreen = () => {
   const navigation = useNavigation();
 
-  const navigateToCalificanos = () => {
+  const navigateToCalif = () => {
     navigation.navigate('Calificanos');
   };
 
-  const navigateToNovedad = () => {
+  const navigateToNov = () => {
     navigation.navigate('Novedad');
   };
 
-  const navigateRecupPassw = () => {
-    navigation.navigate('RecupContrScreen');
-  };
-
-  const navigateTologin = () => {
+  const navigateToLogin = () => {
     navigation.navigate('Login');
   };
 
+  const navigateToHome = () => {
+    navigation.navigate('Home');
+  };
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={[styles.TouchableOpacity, { top: '50%' }]} onPress={navigateToCalificanos}>
-        <View style={styles.cali}>
-          <Text style={styles.text}>
-            Calificanos
-            <FontAwesomeIcon style={styles.iconstar} name="star" />
-          </Text>
-        </View>
+      <View style={styles.titulo}>
+          <Text style={styles.tituloText}>Ajustes</Text>
+      </View>
+      <View style={styles.containerSettin}>
+          <TouchableOpacity>
+              <FontAwesomeIcon name="gear" size={60}/>
+          </TouchableOpacity>
+      </View>
+
+      <View style={styles.containeOption}>
+          <View style={styles.Options}>
+            <TouchableOpacity style={styles.optionViews} onPress={navigateToCalif}>
+              <Text style={styles.optionText}>Calificanos</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={navigateToCalif}>
+              <FontAwesomeIcon name="star" size={30}/>
+            </TouchableOpacity>
+
+          </View>
+          <View style={styles.Options}>
+            <TouchableOpacity style={styles.optionViews} onPress={navigateToNov}>
+              <Text style={styles.optionText}>Novedad</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={navigateToNov}>
+              <FontAwesomeIcon name="headphones" size={30}/>
+            </TouchableOpacity>
+          </View>
+      </View>
+
+      <TouchableOpacity onPress={navigateToLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Cerrar Sesion</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.TouchableOpacity, { top: '60%' }]} onPress={navigateToNovedad}>
-        <View style={styles.nove}>
-          <Text style={styles.text}>
-            Novedad
-            <FontAwesomeIcon style={styles.iconcascos} name="headphones" />
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.TouchableOpacity, { top: '70%' }]} onPress={navigateRecupPassw}>
-        <View style={styles.nove}>
-          <Text style={styles.text}>
-            Recuperar Contraseña
-            <FontAwesomeIcon style={styles.iconcascos} name="headphones" />
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <ComponentPantallas tittle="Ajustes" icono='gear' />
-
-      <View style={styles.boton}>
-        <Button
-          onPress={navigateTologin}
-          title="Cerrar Sesión"
-          buttonStyle={{ backgroundColor: '#39A900' }}
-          titleStyle={{ fontWeight: 'bold' }}
-        />
+      
+      <View style={styles.flechaContainer}>
+          <TouchableOpacity onPress={navigateToHome}>
+              <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon} />
+          </TouchableOpacity>
       </View>
     </View>
   );
@@ -70,56 +68,70 @@ const SettingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#eeeeee',
   },
-  iconstar: {
-    bottom: '48%',
-    position: 'absolute',
+  titulo: {
+    width: '100%',
+    height: 60,
+    alignItems: 'center',
     justifyContent: 'center',
-    color: 'black',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginLeft: '50%',
+    backgroundColor: '#39A900',
   },
-  iconcascos: {
-    bottom: '36%',
-    position: 'absolute',
-    justifyContent: 'center',
-    color: 'black',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginLeft: '50%',
+  tituloText: {
+    fontSize: 24,
+    color: 'white',
   },
-  cali: {
-    justifyContent: 'center',
-    alignItems: 'center',  // Añadida esta línea para centrar horizontalmente
-  },
-  nove: {
-    justifyContent: 'center',
-    alignItems: 'center',  // Añadida esta línea para centrar horizontalmente
-  },
-  boton: {
-    width: 'auto',
+  containerSettin: {
+    marginHorizontal: '5%',
+    width: '90%',
+    borderBottomWidth: 1,
+    flexDirection: 'row',   
+    justifyContent: 'flex-end',  
+    alignItems: 'center', 
     padding: 10,
-    position: 'relative',
+  },
+  containeOption: {
+    bottom: '-10%',
+  },
+  Options: {
+    width: '80%',
+    paddingBottom: '10%',
+    marginHorizontal: '5%',
+    flexDirection: 'row',
+  },
+  optionViews: {
+    width: '40%',
+    marginRight: '40%',
+  },
+
+  optionText: {
+    fontSize: 22,
+  },
+
+  button: {
+    position: 'absolute',
+    bottom: '20%',
+    width: 160,
+    height: 50,
+    backgroundColor: '#39A900',
+    alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 10,
     alignSelf: 'center',
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    justifyContent: 'center',
-    color: 'black',
-    fontWeight: 'bold',
-  },
-  TouchableOpacity: {
-    position: 'absolute',
-    left: 10,
-    zIndex: 1,
+  buttonText: {
+    fontSize: 18,
     color: 'white',
-    fontSize: 30,
-    elevation: 2,
-
+  },
+  flechaContainer: {
+    position: 'absolute',
+    bottom: 0, 
+    right: 0, 
+    marginBottom: 40,
+    marginRight: 40, 
+  },
+  flechaIcon: {
+    color: 'black',
   },
 });
 

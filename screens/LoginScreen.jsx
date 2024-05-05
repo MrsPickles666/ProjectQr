@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -11,7 +13,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:3000/usuario/login', {
+      const response = await fetch('http://192.168.1.38:3000/usuario/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,6 +28,8 @@ const LoginScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
+        const token = data.token;
+        await AsyncStorage.setItem('token',token);
         // Si la respuesta es exitosa, redirige al usuario a la pantalla de inicio
         navigation.navigate('Home');
       } else {

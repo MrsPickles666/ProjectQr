@@ -1,110 +1,165 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Input, Button } from 'react-native-elements';
-import ComponentPantallas from '../components/ComponentPantallas';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Input } from 'react-native-elements';
+import { useNavigation } from '@react-navigation/native';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 
 const RegisterObjets = () => {
+    const [date, setDate] = useState(new Date());
+    const [show, setShow] = useState(false);
+    const navigation = useNavigation();
+
+    const navigateToHome = () => {
+        navigation.navigate('Home');
+    };
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setDate(currentDate);
+        setShow(false);
+    };
+
+    const showDatepicker = () => {
+        setShow(true);
+    };
+
     return (
-        <View style={styles.body}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Registrar objetos</Text>
+        <View style={styles.container}>
+            <View style={styles.titulo}>
+                <Text style={styles.tituloText}>Registrar Objeto</Text>
             </View>
-            <ScrollView style={styles.scroll}>
-                <View style={styles.info}>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Codigo</Text>
-                        <Input style={styles.input} placeholder='' />
+            <View style={styles.containerRegit}>
+                <FontAwesomeIcon name="plus-square" size={60} style={styles.regist} />
+            </View>
+            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.containerForm}>
+                    {['Codigo', 'Descripcion', 'Codigo centro', 'Centro', 'Ambiente', 'Codigo ambiente'].map((label) => (
+                        <View style={styles.containerInput} key={label}>
+                            <Text style={styles.textInputLabel}>{label}:</Text>
+                            <Input containerStyle={styles.inputContainer} inputStyle={styles.input} />
+                        </View>
+                    ))}
+                    <View style={styles.containerInput}>
+                        <Text style={styles.textInputLabel}>Fecha:</Text>
+                        <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
+                            <Text style={styles.dateText}>{date.toLocaleDateString()} </Text>
+                            <FontAwesomeIcon name="calendar" size={20} style={styles.calendarIcon} />
+                        </TouchableOpacity>
+                        {show && (
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={date}
+                                mode="date"
+                                display="default"
+                                onChange={onChange}
+                            />
+                        )}
                     </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Descripcion</Text>
-                        <Input style={styles.input} placeholder='' />
-                    </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Fecha</Text>
-                        <Input style={styles.input}  placeholder='' />
-                    </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Codigo centro</Text>
-                        <Input style={styles.input} placeholder='' />
-                    </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Centro</Text>
-                        <Input style={styles.input} placeholder='' />
-                    </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Ambiente</Text>
-                        <Input style={styles.input} placeholder='' />
-                    </View>
-                    <View style={styles.clas}>
-                        <Text style={styles.objetoinfo}>Codigo ambiente</Text>
-                        <Input style={styles.input} placeholder='' />
-                    </View>
-                    {/* Agrega más pares de Text e Input según sea necesario */}
                 </View>
             </ScrollView>
-            <Button
-                title="Crear"
-                buttonStyle={styles.butCrear}
-                titleStyle={styles.crearBut}
-            />
+            <TouchableOpacity onPress={navigateToHome} style={styles.button}>
+                <FontAwesomeIcon name="qrcode" size={40} />
+                <Text style={styles.buttonText}>Crear</Text>
+            </TouchableOpacity>
+            <View style={styles.flechaContainer}>
+                <TouchableOpacity onPress={navigateToHome} style={styles.flechaLeft}>
+                    <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon}  />
+                </TouchableOpacity>
+            </View>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    body: {
-        flex: 1,
-        backgroundColor: 'rgb(236, 236, 236)',
-
-    },
-    header: {
-        backgroundColor: 'green',
-        padding: 10,
-        justifyContent: 'center',
+    container: {
         alignItems: 'center',
     },
-    headerText: {
+    titulo: {
+        width: '100%',
+        height: 60,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#39A900',
+    },
+    tituloText: {
+        fontSize: 24,
         color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
     },
-    info: {
-        padding: '5%',
-        alignItems: 'flex-start',
-        
+    containerRegit: {
+        width: '89%',
+        borderBottomWidth: 1,
+        alignItems: 'flex-end',
     },
-    clas: {
+    regist: {
+        margin: '1%'
+    },
+    scrollContainer: {
+        width: '90%',
+        height: 500,
+        alignSelf: 'center',
+    },
+    containerForm: {
+        width: '100%',
+        marginLeft: '5%',
+    },
+    containerInput: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 1,
-        width: '80%',
+        marginBottom: 20,
+        marginRight: 10,
+        alignItems: 'center',
     },
-    objetoinfo: {
-        fontSize: 18,
-        marginBottom: 1,
-        height: 50,
-        fontWeight: 'bold',
-        width: 100,
+    textInputLabel: {
+        fontSize: 16,
+        marginRight: 10,
+        flex: 1,
+    },
+    inputContainer: {
+        flex: 2,
     },
     input: {
-        flex: 1,
-        height: 30,
-        padding: 5,
-        borderWidth: 1,
+        width: '100%',
+    },
+    inputDate: {
+        flex: 2,
+        flexDirection: 'row',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderColor: 'rgb(133, 133, 133)',
+        alignItems: 'center',
+    },
+    calendarIcon: {
+        marginLeft: 5,
+    },
+    dateText: {
+        fontSize: 16,
+    },
+    button: {
+        position: 'absolute',
+        flexDirection: 'row',
+        bottom: '-20%',
+        width: 160,
+        height: 50,
+        backgroundColor: '#39A900',
+        alignItems: 'center',
+        justifyContent: 'center',
         borderRadius: 10,
-    },
-    butCrear: {
         alignSelf: 'center',
-        marginTop: 20,
-        backgroundColor: "white",
     },
-    crearBut: {
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        marginHorizontal: 10,
+    },
+    flechaContainer: {
+        position: 'absolute',
+        bottom: '-25%',
+        right: 0,
+        marginRight: 20,
+    },
+    flechaIcon: {
         color: 'black',
-        backgroundColor: "white",
-    },
-    scroll: {
-        flexGrow: 1,
-  
     },
 });
 

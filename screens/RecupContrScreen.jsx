@@ -7,8 +7,8 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 const RecupContrScreen = () => {
     const navigation = useNavigation();
 
-    const navigateToHome = () => {
-        navigation.navigate('Setting');
+    const navigateTologin = () => {
+        navigation.navigate('Login');
     };
     return (
         <View style={styles.container}>
@@ -30,10 +30,10 @@ const RecupContrScreen = () => {
                 </TouchableOpacity>
 
                 <View style={styles.flechaContainer}>
-                <TouchableOpacity onPress={navigateToHome}>
-                    <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon} />
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity onPress={navigateTologin}>
+                        <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon} />
+                    </TouchableOpacity>
+                </View>
 
         </View>
     );
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     containerCarta: {
-        width: '98%',
+        width: '89%',
         borderBottomWidth: 1,
         margin: 5,
         alignItems: 'flex-end',
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
 
     Inputform: {
         marginTop: 80,
-        width: 400,
+        width: 300,
         padding: 10,
         borderRadius: 20,
         borderWidth: 1,
