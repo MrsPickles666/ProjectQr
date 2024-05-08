@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VerToken = () => {
@@ -9,7 +8,7 @@ const VerToken = () => {
   useEffect(() => {
     const obtenerToken = async () => {
       try {
-        // Obtén el token almacenado en AsyncStorage
+        // Obtener el token almacenado en AsyncStorage
         const tokenGuardado = await AsyncStorage.getItem('token');
         
         // Actualiza el estado con el token

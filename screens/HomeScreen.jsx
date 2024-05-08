@@ -50,7 +50,7 @@ const HomeScreen = () => {
           <TouchableOpacity onPress={btnBars}>
             <FontAwesomeIcon name="bars" size={25} style={styles.imgInfo} />
           </TouchableOpacity>
-          <Text style={styles.namUser}>Jairo de Avila</Text>
+          <Text style={styles.namUser}>Jairo de avila </Text>
           <TouchableOpacity onPress={navigateToSetting}>
             <FontAwesomeIcon name="gear" size={25} style={styles.imgInfo} />
           </TouchableOpacity>

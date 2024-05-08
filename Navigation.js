@@ -17,8 +17,8 @@ import DeleScreen from './screens/DeleScreen';
 import ReportScreen from './screens/ReportScreen';
 import RecupContrScreen from './screens/RecupContrScreen';
 import DetailScreen from './screens/DetailScreen';
-import VerToken from './components/ComponentToken';
 import OtraPantalla from './screens/OtraPantalla';
+import VerToken from './utils/ComponentToken';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +26,7 @@ const Navigation = () => {
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="otra">
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
           <Stack.Screen name="otra" component={OtraPantalla} />
           <Stack.Screen name="Token" component={VerToken} />
           <Stack.Screen name="Setting" component={Settingcreen} />
