@@ -1,4 +1,4 @@
-package com.fromnrn
+package com.jairodeavila.SATF
 
 import android.os.Build
 import android.os.Bundle

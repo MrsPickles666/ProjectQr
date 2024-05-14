@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, ScrollView, StyleSheet, Button } from 'react-native';
-import { Input } from 'react-native-elements';
+import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import crearUsu from '../api/user';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -14,93 +16,79 @@ const RegisterScreen = () => {
   const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
+  const [mensaje, setmensaje] = useState('');
 
-  const handleRegister = () => {
-    console.log('Registro exitoso:', {
-      name,
-      lastName,
-      documentType,
-      documentNumber,
-      position,
-      role,
-      email,
-      password,
-    });
-    navigation.navigate('Login');
-  };
 
+
+  navigation.navigate('Login');
+
+  useEffect(() => {
+    const obtenerToken = async () => {
+      try {
+        const tokenGuardado = await AsyncStorage.getItem('token');
+      } catch (error) {
+        console.error('Error getting token', error);
+      }
+    };
+
+  })
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.containerForm} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Registro</Text>
-        <Input
-          placeholder='Nombre'
-          leftIcon={{ type: 'font-awesome', name: 'user' }}
-          containerStyle={styles.inputContainer}
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
           onChangeText={setName}
           value={name}
         />
-        
-        <Input
-          placeholder='Apellido'
-          leftIcon={{ type: 'font-awesome', name: 'user' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setLastName(text)}
+        <TextInput
+          style={styles.input}
+          placeholder="Apellido"
+          onChangeText={setLastName}
           value={lastName}
         />
-
-        <Input
-          placeholder='Tipo de Documento'
-          leftIcon={{ type: 'font-awesome', name: 'id-card' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setDocumentType(text)}
+        <TextInput
+          style={styles.input}
+          placeholder="Tipo de Documento"
+          onChangeText={setDocumentType}
           value={documentType}
         />
-
-        <Input
-          placeholder='Número de Documento'
-          leftIcon={{ type: 'font-awesome', name: 'id-card' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setDocumentNumber(text)}
-          value={documentNumber}
+        <TextInput
+          style={styles.input}
+          placeholder="Número de Documento"
           keyboardType="numeric"
+          onChangeText={setDocumentNumber}
+          value={documentNumber}
         />
-
-        <Input
-          placeholder='Cargo'
-          leftIcon={{ type: 'font-awesome', name: 'briefcase' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setPosition(text)}
+        <TextInput
+          style={styles.input}
+          placeholder="Cargo"
+          onChangeText={setPosition}
           value={position}
         />
-
-        <Input
-          placeholder='Rol'
-          leftIcon={{ type: 'font-awesome', name: 'users' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setRole(text)}
+        <TextInput
+          style={styles.input}
+          placeholder="Rol"
+          onChangeText={setRole}
           value={role}
         />
-
-        <Input
-          placeholder='Email'
-          leftIcon={{ type: 'font-awesome', name: 'envelope' }}
-          containerStyle={styles.inputContainer}
-          onChangeText={(text) => setEmail(text)}
-          value={email}
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
           keyboardType="email-address"
+          onChangeText={setEmail}
+          value={email}
         />
-        <Input
-          placeholder='Contraseña'
-          leftIcon={{ type: 'font-awesome', name: 'lock' }}
-          containerStyle={styles.inputContainer}
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          secureTextEntry={true}
           onChangeText={setPassword}
           value={password}
-          secureTextEntry
         />
-        <View style={styles.boton}>
-          <Button title="Listo" onPress={handleRegister} color={'#39A900'} />
-        </View>
+        <Button title="Listo" onPress={handleRegister} color={'#39A900'} />
       </ScrollView>
     </View>
   );
@@ -109,45 +97,29 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#ECECEC',
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 16,
   },
   scrollContainer: {
-    flex: 1,
-    maxHeight: 500,
-    borderRadius: 25,
-    backgroundColor: 'white',
-    alignSelf: 'center',
-    width: '95%',
+    width: '100%',
   },
   containerForm: {
     flexGrow: 1,
-    padding: 20,
     justifyContent: 'center'
   },
-  
-  inputContainer: {
-    padding: 16,
+  input: {
     marginBottom: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
   },
   title: {
-    fontSize: 30,
+    marginBottom: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#39A900',
     textAlign: 'center',
-    marginBottom: '20%',
-  },
-  boton: {
-    width: 100,
-    height: 'auto',
-    backgroundColor: '#39A900',
-    borderRadius: 10,
-    padding: 5,
-    position: 'relative',
-    justifyContent: 'center',
-    alignSelf: 'center'
   },
 });
 

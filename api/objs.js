@@ -1,8 +1,8 @@
 const crearObj = async (formData, token) => {
-    console.log('Token:', token); // Agregar esta línea para imprimir el token en la consola
+    
     
     try {
-        const response = await fetch('http://localhost:3000/objeto/create', {
+        const response = await fetch('http://192.168.47.75:3000/objeto/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

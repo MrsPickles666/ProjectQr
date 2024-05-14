@@ -10,12 +10,7 @@ import crearObjeto from '../api/objs';
 const RegisterObjets = () => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
-  const [Id, setId] = useState('');
   const [serial, setSerial] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [codigoCentro, setCodigoCentro] = useState('');
-  const [centro, setCentro] = useState('');
-  const [ambiente, setAmbiente] = useState('');
   const [codigoAmbiente, setCodigoAmbiente] = useState('');
   const [idCate, setIdCate] = useState('');
   const [estObj, setEstObj] = useState('');
@@ -24,6 +19,25 @@ const RegisterObjets = () => {
   const [marcObj, setMarcObj] = useState('');
   const [valObj, setValObj] = useState('');
   const [token, setToken] = useState('');
+
+  const [mensaje, setMensaje] = useState('');
+
+  // ...
+
+  const handleSubmit = () => {
+    // Limpiar las cajas de texto
+    setSerial('');
+    setCodigoAmbiente('');
+    setIdCate('');
+    setEstObj('');
+    setObserObj('');
+    setTipObj('');
+    setMarcObj('');
+    setValObj('');
+
+    // Limpiar el mensaje
+    setMensaje('');
+  };
 
   const navigation = useNavigation();
 
@@ -55,32 +69,31 @@ const RegisterObjets = () => {
   };
 
   const enviarDatos = async () => {
-    console.log('Id:', Id);
     const formData = {
-      Id,
-      serial,
-      descripcion,
-      codigoCentro,
-      centro,
-      ambiente,
-      codigoAmbiente,
-      idCate,
-      estObj,
-      obserObj,
-      tipObj,
-      marcObj,
-      valObj,
-      fecha: date,
+      id_cate: idCate,
+      ser_obj: serial,
+      id_amb: codigoAmbiente,
+      fech_adqui: date,
+      est_obj: estObj,
+      obser_obj: obserObj,
+      tip_obj: tipObj,
+      marc_obj: marcObj,
+      val_obj: valObj,
     };
-    console.log('Datos a enviar:', formData); // Agregar esta línea
     try {
       await crearObjeto(formData, token);
+      // Si la creación es exitosa, mostrar mensaje de éxito
+      setMensaje('El objeto se agregó correctamente.');
+      // Limpiar las cajas de texto
+      handleSubmit();
     } catch (error) {
       console.error('Error al enviar los datos:', error);
+      // Si hay un error, mostrar mensaje de error
+      setMensaje('Error al agregar el objeto. Inténtalo de nuevo.');
     }
   };
 
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.titulo}>
@@ -91,7 +104,7 @@ const RegisterObjets = () => {
       </View>
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.containerForm}>
-          {['Id','Serial','Descripción', 'Código de Centro', 'Centro', 'Ambiente', 'Código de Ambiente', 'ID Categoría', 'Estado del Objeto', 'Observaciones del Objeto', 'Tipo de Objeto', 'Marca del Objeto', 'Valor del Objeto'].map((label) => (
+          {['Serial','Código de Ambiente', 'ID Categoría', 'Estado del Objeto', 'Observaciones del Objeto', 'Tipo de Objeto', 'Marca del Objeto', 'Valor del Objeto'].map((label) => (
             <View style={styles.containerInput} key={label}>
               <Text style={styles.textInputLabel}>{label}:</Text>
               <Input
@@ -99,24 +112,8 @@ const RegisterObjets = () => {
                 inputStyle={styles.input}
                 onChangeText={(text) => {
                   switch (label) {
-                    case 'Id':
-                      setId(text);
-                      break;
                     case 'Serial':
                       setSerial(text);
-                      break;
-                    case 'Descripción':
-                      setDescripcion(text);
-                      break;
-                      
-                    case 'Código de Centro':
-                      setCodigoCentro(text);
-                      break;
-                    case 'Centro':
-                      setCentro(text);
-                      break;
-                    case 'Ambiente':
-                      setAmbiente(text);
                       break;
                     case 'Código de Ambiente':
                       setCodigoAmbiente(text);
@@ -270,3 +267,8 @@ const styles = StyleSheet.create({
 });
 
 export default RegisterObjets;
+
+
+
+
+

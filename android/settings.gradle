@@ -1,4 +1,4 @@
-rootProject.name = 'fromnrn'
+rootProject.name = 'SATF'
 
 dependencyResolutionManagement {
   versionCatalogs {
