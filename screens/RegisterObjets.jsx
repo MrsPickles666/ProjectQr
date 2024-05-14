@@ -22,8 +22,6 @@ const RegisterObjets = () => {
 
   const [mensaje, setMensaje] = useState('');
 
-  // ...
-
   const handleSubmit = () => {
     // Limpiar las cajas de texto
     setSerial('');
