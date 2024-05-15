@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, ScrollView, TextInput, StyleSheet, Button, Picker } from 'react-native'; // Importa Picker
+import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native'; // Importa Picker
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crearUsu from '../api/user';
+import { Picker, Item } from '@react-native-picker/picker';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -16,8 +17,17 @@ const RegisterScreen = () => {
   const [telefono, setTelefono] = useState('');
   const [token, setToken] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [selectedDocument, setSelectedDocument] = useState('');
   const [roles, setRoles] = useState([]); // Nuevo estado para almacenar los roles
 
+  // Define la función para manejar el cambio en el componente Picker
+  const handleDocumentChange = (itemValue, itemIndex) => {
+    setSelectedDocument(itemValue);
+  };
+
+  const navigateToLogin = () => {
+    navigation.navigate('Login');
+  };
   const navigation = useNavigation('');
 
   useEffect(() => {
@@ -26,7 +36,7 @@ const RegisterScreen = () => {
         const tokenGuardado = await AsyncStorage.getItem('token');
         setToken(tokenGuardado);
       } catch (error) {
-        console.error('Error al obtener el token:', error);
+        console.log('Error al obtener el token:', error);
       }
     };
     obtenerToken();
@@ -40,13 +50,13 @@ const RegisterScreen = () => {
     try {
       const response = await fetch('http://192.168.47.170:3000/roles/all');
       const data = await response.json(); // Parsea los datos JSON
-      
+
       // Ahora puedes actualizar el estado "roles"
-    let valor =  data.data
-    setRoles(valor)
-       // Imprime los datos obtenidos
+      let valor = data.data
+      setRoles(valor)
+      // Imprime los datos obtenidos
     } catch (error) {
-      console.error('Error al obtener los roles:', error);
+      console.log('Error al obtener los roles:', error);
     }
   };
   console.log(roles);
@@ -66,13 +76,14 @@ const RegisterScreen = () => {
       password: password,
       tip_doc: documentType,
       tel_fun: telefono,
+
     };
     try {
       await crearUsu(formData, token);
       setMensaje('El usuario se registro correctamente');
       handleSubmit();
     } catch (error) {
-      console.error('Error al enviar los datos del usuario', error);
+      console.log('Error al enviar los datos del usuario', error);
       setMensaje('Error al agregar al usuario. Inténtalo de nuevo.');
     }
   };
@@ -93,34 +104,32 @@ const RegisterScreen = () => {
           onChangeText={setLastName}
           value={lastName}
         />
-        <TextInput
+
+        <Picker
           style={styles.input}
-          placeholder="Tipo de Documento"
-          onChangeText={setDocumentType}
-          value={documentType}
-        />
+          selectedValue={selectedDocument}
+          onValueChange={handleDocumentChange} // Aquí llama a la función handleDocumentChange
+        >
+          <Picker.Item label="Tipo de Documento" value="" /> {/* Agrega un valor vacío */}
+          <Picker.Item label="CC" value={"CC"} />
+          <Picker.Item label="TI" value={"TI"} />
+        </Picker>
+
         <TextInput
           style={styles.input}
           placeholder="Número de Documento"
           keyboardType="numeric"
           onChangeText={setDocumentNumber}
-          value={documentNumber}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Cargo"
-          onChangeText={setPosition}
-          value={position}
-        />
+          value={documentNumber} />
 
         {/* Selector de roles */}
         <Picker
           selectedValue={role}
           onValueChange={(itemValue) => setRole(itemValue)}
           style={styles.input}>
-          {roles.map((role) =>{
+          {roles.map((role) => {
             console.log(role)
-            return <Picker.Item key = {role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />
+            return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />
           })}
         </Picker>
 
@@ -146,6 +155,9 @@ const RegisterScreen = () => {
         />
         <Button title="Listo" onPress={enviarDatos} color={'#39A900'} />
       </ScrollView>
+      <TouchableOpacity onPress={navigateToLogin}>
+        <Text style={styles.registerLink}>Iniciar Seccion</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -176,6 +188,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#39A900',
     textAlign: 'center',
+  },
+  registerLink: {
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#39A900',
+    textDecorationLine: 'underline',
   },
 });
 
