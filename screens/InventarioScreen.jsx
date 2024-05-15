@@ -1,76 +1,94 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-const DetailScreen = () => {
+const InventarioScreen = () => {
     const navigation = useNavigation();
-    const [isChecked, setIsChecked] = useState({});
 
+
+    const navigateEditar = () => {
+        navigation.navigate('EditarInventario');
+    };
+
+    const RegisterInventario = () => {
+        navigation.navigate('RegisterInventario');
+
+    };
     const navigateToHome = () => {
         navigation.navigate('Home');
-    };
-    const navigateObjets = () => {
-        navigation.navigate('RegisterObjets');
-      };
 
-    const handleCheck = (itemName) => {
-        setIsChecked({ ...isChecked, [itemName]: !isChecked[itemName] });
+    };
+
+    const navigateDai = () => {
+        navigation.navigate('Details');
     };
     return (
-<View style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.titulo}>
-                <Text style={styles.tituloText}>Objetos</Text>
+                <Text style={styles.tituloText}>Inventarios</Text>
             </View>
             <View style={styles.search}>
                 <Text style={styles.searchLabel}>Buscar:</Text>
                 <TextInput style={styles.inputSearch} placeholder="Escriba aquí" />
                 <TouchableOpacity style={styles.searchButton}>
-                    <FontAwesomeIcon name="search" size={20} style={styles.searchIcon} />
+                    <FontAwesomeIcon name="search" size={30} style={styles.searchIcon} />
                 </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.inventary}>
                 <TouchableOpacity style={styles.item}>
-                    <FontAwesomeIcon name="camera-retro" size={20} style={styles.itemIcon} />
-                    <Text style={styles.listInv}>Tripo-gr34</Text>
+                    <FontAwesomeIcon name="laptop" size={30} style={styles.itemImage} />
+                    <Text style={styles.listInv}>Inventario ADSO</Text>
                     <View style={styles.option}>
-                        <TouchableOpacity onPress={() => handleCheck('Tripo-gr34')}>
-                            <FontAwesomeIcon name={isChecked['Tripo-gr34'] ? "check-square" : "square-o"} size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateDai}>
+                            <FontAwesomeIcon name="eye" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
-                        <TouchableOpacity>
-                            <FontAwesomeIcon name="download" size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateEditar}>
+                            <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.item}>
-                    <FontAwesomeIcon name="volume-up" size={20} style={styles.itemIcon} />
-                    <Text style={styles.listInv}>Radio</Text>
+                    <FontAwesomeIcon name="paint-brush" size={30} style={styles.itemImage} />
+                    <Text style={styles.listInv}>Inventario Artes grafiacas</Text>
                     <View style={styles.option}>
-                        <TouchableOpacity onPress={() => handleCheck('Radio')}>
-                            <FontAwesomeIcon name={isChecked['Radio'] ? "check-square" : "square-o"} size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateDai}>
+                            <FontAwesomeIcon name="eye" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
-                        <TouchableOpacity>
-                            <FontAwesomeIcon name="download" size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateEditar}>
+                            <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.item}>
-                    <FontAwesomeIcon name="camera" size={20} style={styles.itemIcon} />
-                    <Text style={styles.listInv}>Camara canon-LFF</Text>
+                    <FontAwesomeIcon name="shopping-bag" size={30} style={styles.itemImage} />
+                    <Text style={styles.listInv}>Inventario confecciones</Text>
                     <View style={styles.option}>
-                        <TouchableOpacity onPress={() => handleCheck('Camara canon-LFF')}>
-                            <FontAwesomeIcon name={isChecked['Camara canon-LFF'] ? "check-square" : "square-o"} size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateDai}>
+                            <FontAwesomeIcon name="eye" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
-                        <TouchableOpacity>
-                            <FontAwesomeIcon name="download" size={20} style={styles.optionIcon} />
+                        <TouchableOpacity onPress={navigateEditar}>
+                            <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.item}>
+                    <FontAwesomeIcon name="truck" size={30} style={styles.itemImage} />
+                    <Text style={styles.listInv}>Inventario Automotriz</Text>
+                    <View style={styles.option}>
+                        <TouchableOpacity onPress={navigateDai}>
+                            <FontAwesomeIcon name="eye" size={20} style={styles.optionIcon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={navigateEditar}>
+                            <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
             </ScrollView>
 
             <View style={styles.containerButton}>
-                <TouchableOpacity onPress={navigateObjets} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
+                <TouchableOpacity onPress={RegisterInventario} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
                     <FontAwesomeIcon name="plus-circle" size={45} style={styles.agre} />
                     <Text style={styles.buttonText}>AGREGAR</Text>
                 </TouchableOpacity>
@@ -82,13 +100,9 @@ const DetailScreen = () => {
     );
 }
 
-
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         alignItems: 'center',
-        justifyContent: 'flex-start',
-        backgroundColor: '#eeeeee',
     },
     titulo: {
         width: '100%',
@@ -108,7 +122,7 @@ const styles = StyleSheet.create({
     },
     searchLabel: {
         fontSize: 18,
-        marginRight:15,
+        marginRight: 15,
     },
     inputSearch: {
         flex: 1,
@@ -125,8 +139,6 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     inventary: {
-        height: 40,
-
         width: '100%',
     },
     item: {
@@ -141,12 +153,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
     },
-    itemIcon: {
-        width: 20,
-        height: 20,
+    itemImage: {
         marginRight: 10,
-        color: '#333333',
-    },    
+    },
     listInv: {
         flex: 1,
         fontSize: 16,
@@ -159,13 +168,6 @@ const styles = StyleSheet.create({
     optionIcon: {
         marginRight: 5,
     },
-    checkbox: {
-        width: 20,
-        height: 20,
-        borderWidth: 1,
-        borderColor: 'black',
-        marginRight: 10,
-    },
     containerButton: {
         flexDirection: 'row',
     },
@@ -173,14 +175,12 @@ const styles = StyleSheet.create({
         color: "#39A900",
 
     },
-    buttonText: {
-        fontSize: 15,
-        color: '#000',
-    },
+
     button: {
         width: 130,
         height: 50,
         gap: 5,
+        bottom: '-60%',
         justifyContent: 'center',
         borderRadius: 100,
         margin: 10,
@@ -188,7 +188,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center'
     },
+    buttonText: {
+        fontSize: 15,
+        color: '#000',
+    },
 
 });
 
-export default DetailScreen;
+export default InventarioScreen;

@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Input } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker, Item } from '@react-native-picker/picker';
 
-const RegisterObjets = () => {
+
+const RegisterInventario = () => {
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(''); // Estado para el selector de Codigo Categoria
-    const [selectedEnvironment, setSelectedEnvironment] = useState(''); // Estado para el selector de Ambiente
     const navigation = useNavigation();
 
     const navigateToHome = () => {
@@ -30,61 +28,19 @@ const RegisterObjets = () => {
     return (
         <View style={styles.container}>
             <View style={styles.titulo}>
-                <Text style={styles.tituloText}>Registrar Objeto</Text>
+                <Text style={styles.tituloText}>Agregar Inventario</Text>
             </View>
             <View style={styles.containerRegit}>
-                <FontAwesomeIcon name="plus-square" size={60} style={styles.regist} />
+                <FontAwesomeIcon name="plus-circle" size={60} style={styles.regist} />
             </View>
             <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <View style={styles.containerForm}>
-                    {['Codigo',].map((label) => (
+                    {['ID Inventario', 'Nombre Del Inventario', 'Observacion', 'Estado Del Inventario', 'Funcionario A Cargo'].map((label) => (
                         <View style={styles.containerInput} key={label}>
                             <Text style={styles.textInputLabel}>{label}:</Text>
                             <Input containerStyle={styles.inputContainer} inputStyle={styles.input} />
                         </View>
                     ))}
-                    <View style={styles.select}>
-                        <Text style={styles.textInputLabel}>Codigo Categoria</Text>
-                        <Picker style={styles.select1}
-                            selectedValue={selectedCategory}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setSelectedCategory(itemValue)
-                            }>
-
-                            <Picker.Item label="Seleccione el codigo De Categoria" />
-                            <Picker.Item label="1" value="1" />
-                            <Picker.Item label="2" value="2" />
-                            <Picker.Item label="3" value="3" />
-                        </Picker>
-                    </View>
-
-                    {['Serial',].map((label) => (
-                        <View style={styles.containerInput} key={label}>
-                            <Text style={styles.textInputLabel}>{label}:</Text>
-                            <Input containerStyle={styles.inputContainer} inputStyle={styles.input} />
-                        </View>
-                    ))}
-                    <View style={styles.select}>
-                        <Text style={styles.textInputLabel}>Ambiente</Text>
-                        <Picker style={styles.select1}
-                            selectedValue={selectedEnvironment}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setSelectedEnvironment(itemValue)
-                            }>
-
-                            <Picker.Item label="Seleccione el ambiente" />
-                            <Picker.Item label="ADSO" value="1" />
-                            <Picker.Item label="CONFECCIONES" value="2" />
-                            <Picker.Item label="ARTES GRAFICAS" value="3" />
-                        </Picker>
-                    </View>
-                    {['Estado', 'Observacion', 'Tipo De Objeto', 'Marca', 'Valor'].map((label) => (
-                        <View style={styles.containerInput} key={label}>
-                            <Text style={styles.textInputLabel}>{label}:</Text>
-                            <Input keyboardType={label === 'Valor' ? 'numeric' : 'default'} containerStyle={styles.inputContainer} inputStyle={styles.input} />
-                        </View>
-                    ))}
-
                     <View style={styles.containerInput}>
                         <Text style={styles.textInputLabel}>Fecha:</Text>
                         <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
@@ -142,11 +98,10 @@ const styles = StyleSheet.create({
     containerForm: {
         width: '100%',
         marginLeft: '5%',
-
     },
     containerInput: {
         flexDirection: 'row',
-        marginBottom: 5,
+        marginBottom: 20,
         marginRight: 10,
         alignItems: 'center',
     },
@@ -192,15 +147,6 @@ const styles = StyleSheet.create({
         color: 'white',
         marginHorizontal: 10,
     },
-    select: {
-        gap: 80,
-        alignItems: 'center',
-        flexDirection: 'row',
-        marginTop: 10,
-    },
-    select1: {
-        width: "50%",
-    },
 });
 
-export default RegisterObjets;
+export default RegisterInventario;

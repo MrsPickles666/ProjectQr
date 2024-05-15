@@ -38,7 +38,7 @@ const RegisterScreen = () => {
   // Función para obtener los roles de la base de datos
   const obtenerRoles = async () => {
     try {
-      const response = await fetch('http://192.168.47.75:3000/roles/all');
+      const response = await fetch('http://192.168.47.170:3000/roles/all');
       const data = await response.json(); // Parsea los datos JSON
       
       // Ahora puedes actualizar el estado "roles"
