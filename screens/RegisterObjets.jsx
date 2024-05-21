@@ -17,10 +17,12 @@ const RegisterObjets = () => {
     const [valor, setValor] = useState('');
     const [token, setToken] = useState('');
     const [mensaje, setMensaje] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [selectedAmbiente, setSelectedAmbiente] = useState('');
+
     const [categorias, setCategorias] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+
     const [ambientes, setAmbientes] = useState([]);
+    const [selectedAmbiente, setSelectedAmbiente] = useState('');
 
     const navigation = useNavigation();
 
@@ -38,7 +40,7 @@ const RegisterObjets = () => {
 
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://192.168.1.38:3000/categorias/all');
+                const response = await fetch('http://192.168.169.107:3000/categorias/all');
                 const data = await response.json();
                 setCategorias(data.data);
             } catch (error) {
@@ -48,7 +50,7 @@ const RegisterObjets = () => {
 
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.1.38:3000/ambiente/all');
+                const response = await fetch('http://192.168.169.107:3000/ambiente/all');
                 const data = await response.json();
                 setAmbientes(data.data);
             } catch (error) {
@@ -59,7 +61,6 @@ const RegisterObjets = () => {
         obtenerToken();
         fetchCategories();
         fetchAmbientes();
-
     }, []);
 
     const navigateToHome = () => {
@@ -78,6 +79,8 @@ const RegisterObjets = () => {
 
     const enviarDatos = async () => {
         const formData = {
+            id_cate: selectedCategory,
+            id_amb: selectedAmbiente,
             ser_obj: serial,
             est_obj: estado,
             obser_obj: observacion,
@@ -85,11 +88,8 @@ const RegisterObjets = () => {
             marc_obj: marca,
             val_obj: parseFloat(valor),
             fech_adqui: date.toISOString().split('T')[0],
-            id_cate: selectedCategory,
-            id_amb: selectedAmbiente,
-
         };
-
+        console.log(formData);
         try {
             await crearObj(formData, token);
             setMensaje('El objeto se registró correctamente');
@@ -99,29 +99,20 @@ const RegisterObjets = () => {
         }
     };
 
+    const handleCategoryChange = (itemValue) => {
+        console.log('Selected Category:', itemValue);
+        setSelectedCategory(itemValue);
+    };
+
+    const handleAmbienteChange = (itemValue) => {
+        console.log('Selected Ambiente:', itemValue);
+        setSelectedAmbiente(itemValue);
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.containerForm} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>Registrar Objeto</Text>
-
-                
-                <Picker
-                    selectedValue={selectedCategory}
-                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-                    style={styles.input}>
-                    {categorias.map((categoria) => {
-                        return <Picker.Item key={categoria.id_cate} label={categoria.nom_cate} value={categoria.id_cate} />
-                    })}
-                </Picker>
-
-                <Picker
-                    selectedValue={selectedAmbiente}
-                    onValueChange={(itemValue) => setSelectedAmbiente(itemValue)}
-                    style={styles.input}>
-                    {ambientes.map((ambiente) => {
-                        return <Picker.Item key={ambiente.id_amb} label={ambiente.nom_amb} value={ambiente.id_amb} />
-                    })}
-                </Picker>
 
                 <TextInput
                     style={styles.input}
@@ -129,6 +120,19 @@ const RegisterObjets = () => {
                     onChangeText={setSerial}
                     value={serial}
                 />
+
+
+
+                <Picker
+                    selectedValue={selectedAmbiente}
+                    onValueChange={handleAmbienteChange}
+                    style={styles.input}>
+                    <Picker.Item  label="Seleccione un ambiente" value="" />
+                    {ambientes.map((ambiente) => (
+
+                        <Picker.Item key={ambiente.id_amb} label={ambiente.nom_amb} value={ambiente.id_amb} />
+                    ))}
+                </Picker>
 
                 <TextInput
                     style={styles.input}
@@ -148,6 +152,17 @@ const RegisterObjets = () => {
                     onChangeText={setTipoObjeto}
                     value={tipoObjeto}
                 />
+
+                <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={handleCategoryChange}
+                    style={styles.input}>
+                    <Picker.Item  label="Seleccione un Categoria" value="" />
+                    {categorias.map((categoria) => (
+                        <Picker.Item key={categoria.id_cate} label={categoria.nom_cate} value={categoria.id_cate} />
+                    ))}
+                </Picker>
+
                 <TextInput
                     style={styles.input}
                     placeholder="Marca"
@@ -230,6 +245,11 @@ const styles = StyleSheet.create({
     mensaje: {
         textAlign: 'center',
         color: 'green',
+        marginTop: 16,
+    },
+    debugText: {
+        textAlign: 'center',
+        color: 'blue',
         marginTop: 16,
     },
 });
