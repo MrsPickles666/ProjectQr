@@ -1,17 +1,66 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { Input } from 'react-native-elements';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker, Item } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import crearObj from '../api/objs';
 
 const RegisterObjets = () => {
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(''); // Estado para el selector de Codigo Categoria
-    const [selectedEnvironment, setSelectedEnvironment] = useState(''); // Estado para el selector de Ambiente
+    const [serial, setSerial] = useState('');
+    const [estado, setEstado] = useState('');
+    const [observacion, setObservacion] = useState('');
+    const [tipoObjeto, setTipoObjeto] = useState('');
+    const [marca, setMarca] = useState('');
+    const [valor, setValor] = useState('');
+    const [token, setToken] = useState('');
+    const [mensaje, setMensaje] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedAmbiente, setSelectedAmbiente] = useState('');
+    const [categorias, setCategorias] = useState([]);
+    const [ambientes, setAmbientes] = useState([]);
+
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const obtenerToken = async () => {
+            try {
+                const tokenGuardado = await AsyncStorage.getItem('token');
+                if (tokenGuardado) {
+                    setToken(tokenGuardado);
+                }
+            } catch (error) {
+                console.log('Error al obtener el token:', error);
+            }
+        };
+
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://192.168.1.38:3000/categorias/all');
+                const data = await response.json();
+                setCategorias(data.data);
+            } catch (error) {
+                console.log('Error al obtener las categorías:', error);
+            }
+        };
+
+        const fetchAmbientes = async () => {
+            try {
+                const response = await fetch('http://192.168.1.38:3000/ambiente/all');
+                const data = await response.json();
+                setAmbientes(data.data);
+            } catch (error) {
+                console.log('Error al obtener los ambientes:', error);
+            }
+        };
+
+        obtenerToken();
+        fetchCategories();
+        fetchAmbientes();
+
+    }, []);
 
     const navigateToHome = () => {
         navigation.navigate('Home');
@@ -27,85 +76,108 @@ const RegisterObjets = () => {
         setShow(true);
     };
 
+    const enviarDatos = async () => {
+        const formData = {
+            ser_obj: serial,
+            est_obj: estado,
+            obser_obj: observacion,
+            tip_obj: tipoObjeto,
+            marc_obj: marca,
+            val_obj: parseFloat(valor),
+            fech_adqui: date.toISOString().split('T')[0],
+            id_cate: selectedCategory,
+            id_amb: selectedAmbiente,
+
+        };
+
+        try {
+            await crearObj(formData, token);
+            setMensaje('El objeto se registró correctamente');
+        } catch (error) {
+            console.log('Error al enviar los datos del objeto', error);
+            setMensaje('Error al agregar el objeto. Inténtalo de nuevo.');
+        }
+    };
+
     return (
         <View style={styles.container}>
-            <View style={styles.titulo}>
-                <Text style={styles.tituloText}>Registrar Objeto</Text>
-            </View>
-            <View style={styles.containerRegit}>
-                <FontAwesomeIcon name="plus-square" size={60} style={styles.regist} />
-            </View>
-            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-                <View style={styles.containerForm}>
-                    {['Codigo',].map((label) => (
-                        <View style={styles.containerInput} key={label}>
-                            <Text style={styles.textInputLabel}>{label}:</Text>
-                            <Input containerStyle={styles.inputContainer} inputStyle={styles.input} />
-                        </View>
-                    ))}
-                    <View style={styles.select}>
-                        <Text style={styles.textInputLabel}>Codigo Categoria</Text>
-                        <Picker style={styles.select1}
-                            selectedValue={selectedCategory}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setSelectedCategory(itemValue)
-                            }>
+            <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.containerForm} showsVerticalScrollIndicator={false}>
+                <Text style={styles.title}>Registrar Objeto</Text>
 
-                            <Picker.Item label="Seleccione el codigo De Categoria" />
-                            <Picker.Item label="1" value="1" />
-                            <Picker.Item label="2" value="2" />
-                            <Picker.Item label="3" value="3" />
-                        </Picker>
-                    </View>
+                
+                <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                    style={styles.input}>
+                    {categorias.map((categoria) => {
+                        return <Picker.Item key={categoria.id_cate} label={categoria.nom_cate} value={categoria.id_cate} />
+                    })}
+                </Picker>
 
-                    {['Serial',].map((label) => (
-                        <View style={styles.containerInput} key={label}>
-                            <Text style={styles.textInputLabel}>{label}:</Text>
-                            <Input containerStyle={styles.inputContainer} inputStyle={styles.input} />
-                        </View>
-                    ))}
-                    <View style={styles.select}>
-                        <Text style={styles.textInputLabel}>Ambiente</Text>
-                        <Picker style={styles.select1}
-                            selectedValue={selectedEnvironment}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setSelectedEnvironment(itemValue)
-                            }>
+                <Picker
+                    selectedValue={selectedAmbiente}
+                    onValueChange={(itemValue) => setSelectedAmbiente(itemValue)}
+                    style={styles.input}>
+                    {ambientes.map((ambiente) => {
+                        return <Picker.Item key={ambiente.id_amb} label={ambiente.nom_amb} value={ambiente.id_amb} />
+                    })}
+                </Picker>
 
-                            <Picker.Item label="Seleccione el ambiente" />
-                            <Picker.Item label="ADSO" value="1" />
-                            <Picker.Item label="CONFECCIONES" value="2" />
-                            <Picker.Item label="ARTES GRAFICAS" value="3" />
-                        </Picker>
-                    </View>
-                    {['Estado', 'Observacion', 'Tipo De Objeto', 'Marca', 'Valor'].map((label) => (
-                        <View style={styles.containerInput} key={label}>
-                            <Text style={styles.textInputLabel}>{label}:</Text>
-                            <Input keyboardType={label === 'Valor' ? 'numeric' : 'default'} containerStyle={styles.inputContainer} inputStyle={styles.input} />
-                        </View>
-                    ))}
+                <TextInput
+                    style={styles.input}
+                    placeholder="Serial"
+                    onChangeText={setSerial}
+                    value={serial}
+                />
 
-                    <View style={styles.containerInput}>
-                        <Text style={styles.textInputLabel}>Fecha:</Text>
-                        <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
-                            <Text style={styles.dateText}>{date.toLocaleDateString()} </Text>
-                            <FontAwesomeIcon name="calendar" size={20} style={styles.calendarIcon} />
-                        </TouchableOpacity>
-                        {show && (
-                            <DateTimePicker
-                                testID="dateTimePicker"
-                                value={date}
-                                mode="date"
-                                display="default"
-                                onChange={onChange}
-                            />
-                        )}
-                    </View>
-                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Estado"
+                    onChangeText={setEstado}
+                    value={estado}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Observación"
+                    onChangeText={setObservacion}
+                    value={observacion}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Tipo De Objeto"
+                    onChangeText={setTipoObjeto}
+                    value={tipoObjeto}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Marca"
+                    onChangeText={setMarca}
+                    value={marca}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Valor"
+                    keyboardType="numeric"
+                    onChangeText={setValor}
+                    value={valor}
+                />
+                <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
+                    <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+                </TouchableOpacity>
+                {show && (
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode="date"
+                        display="default"
+                        onChange={onChange}
+                    />
+                )}
+                <Button title="Registrar" onPress={enviarDatos} color={'#39A900'} />
+                {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
             </ScrollView>
-            <TouchableOpacity onPress={navigateToHome} style={styles.button}>
-                <FontAwesomeIcon name="qrcode" size={40} />
-                <Text style={styles.buttonText}>Crear</Text>
+            <TouchableOpacity onPress={navigateToHome}>
+                <Text style={styles.registerLink}>Volver al inicio</Text>
             </TouchableOpacity>
         </View>
     );
@@ -113,93 +185,52 @@ const RegisterObjets = () => {
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
-    },
-    titulo: {
-        width: '100%',
-        height: 60,
-        alignItems: 'center',
+        flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#39A900',
-    },
-    tituloText: {
-        fontSize: 24,
-        color: 'white',
-    },
-    containerRegit: {
-        width: '89%',
-        borderBottomWidth: 1,
-        alignItems: 'flex-end',
-    },
-    regist: {
-        margin: '1%'
+        padding: 16,
     },
     scrollContainer: {
-        width: '90%',
-        height: 500,
-        alignSelf: 'center',
+        width: '100%',
     },
     containerForm: {
-        width: '100%',
-        marginLeft: '5%',
-
-    },
-    containerInput: {
-        flexDirection: 'row',
-        marginBottom: 5,
-        marginRight: 10,
-        alignItems: 'center',
-    },
-    textInputLabel: {
-        fontSize: 16,
-        marginRight: 10,
-        flex: 1,
-    },
-    inputContainer: {
-        flex: 2,
+        flexGrow: 1,
+        justifyContent: 'center',
     },
     input: {
-        width: '100%',
+        marginBottom: 16,
+        padding: 8,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 4,
+    },
+    title: {
+        marginBottom: 32,
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#39A900',
+        textAlign: 'center',
     },
     inputDate: {
-        flex: 2,
         flexDirection: 'row',
         padding: 10,
         borderBottomWidth: 1,
         borderColor: 'rgb(133, 133, 133)',
         alignItems: 'center',
-    },
-    calendarIcon: {
-        marginLeft: 5,
+        marginBottom: 16,
     },
     dateText: {
         fontSize: 16,
     },
-    button: {
-        position: 'absolute',
-        flexDirection: 'row',
-        bottom: '-20%',
-        width: 160,
-        height: 50,
-        backgroundColor: '#39A900',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-        alignSelf: 'center',
+    registerLink: {
+        marginBottom: 16,
+        textAlign: 'center',
+        color: '#39A900',
+        textDecorationLine: 'underline',
     },
-    buttonText: {
-        fontSize: 18,
-        color: 'white',
-        marginHorizontal: 10,
-    },
-    select: {
-        gap: 80,
-        alignItems: 'center',
-        flexDirection: 'row',
-        marginTop: 10,
-    },
-    select1: {
-        width: "50%",
+    mensaje: {
+        textAlign: 'center',
+        color: 'green',
+        marginTop: 16,
     },
 });
 

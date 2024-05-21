@@ -1,33 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native'; // Importa Picker
+import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crearUsu from '../api/user';
-import { Picker, Item } from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [documentType, setDocumentType] = useState('');
+  const [documentType, setDocumentType] = useState(''); // Cambiado el estado para almacenar el tipo de documento
   const [documentNumber, setDocumentNumber] = useState('');
   const [position, setPosition] = useState('');
-  const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [telefono, setTelefono] = useState('');
   const [token, setToken] = useState('');
   const [mensaje, setMensaje] = useState('');
-  const [selectedDocument, setSelectedDocument] = useState('');
-  const [roles, setRoles] = useState([]); // Nuevo estado para almacenar los roles
-
-  // Define la función para manejar el cambio en el componente Picker
-  const handleDocumentChange = (itemValue, itemIndex) => {
-    setSelectedDocument(itemValue);
-  };
-
-  const navigateToLogin = () => {
-    navigation.navigate('Login');
-  };
+  
+  const [role, setRole] = useState('');
+  const [roles, setRoles] = useState([]);
+  
   const navigation = useNavigation('');
 
   useEffect(() => {
@@ -41,25 +33,19 @@ const RegisterScreen = () => {
     };
     obtenerToken();
 
-    // Obtener los roles cuando el componente se monte
     obtenerRoles();
   }, []);
 
-  // Función para obtener los roles de la base de datos
   const obtenerRoles = async () => {
     try {
-      const response = await fetch('http://192.168.47.170:3000/roles/all');
-      const data = await response.json(); // Parsea los datos JSON
-
-      // Ahora puedes actualizar el estado "roles"
+      const response = await fetch('http://192.168.1.38:3000/roles/all');
+      const data = await response.json();
       let valor = data.data
       setRoles(valor)
-      // Imprime los datos obtenidos
     } catch (error) {
       console.log('Error al obtener los roles:', error);
     }
   };
-  console.log(roles);
 
   const navigateToHome = () => {
     navigation.navigate('Home');
@@ -76,17 +62,16 @@ const RegisterScreen = () => {
       password: password,
       tip_doc: documentType,
       tel_fun: telefono,
-
     };
     try {
       await crearUsu(formData, token);
-      setMensaje('El usuario se registro correctamente');
+      setMensaje('El usuario se registró correctamente');
       handleSubmit();
     } catch (error) {
       console.log('Error al enviar los datos del usuario', error);
       setMensaje('Error al agregar al usuario. Inténtalo de nuevo.');
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -107,12 +92,12 @@ const RegisterScreen = () => {
 
         <Picker
           style={styles.input}
-          selectedValue={selectedDocument}
-          onValueChange={handleDocumentChange} // Aquí llama a la función handleDocumentChange
+          selectedValue={documentType} // Usamos documentType para el valor seleccionado
+          onValueChange={(itemValue) => setDocumentType(itemValue)} // Actualizamos documentType
         >
-          <Picker.Item label="Tipo de Documento" value="" /> {/* Agrega un valor vacío */}
-          <Picker.Item label="CC" value={"CC"} />
-          <Picker.Item label="TI" value={"TI"} />
+          <Picker.Item label="Tipo de Documento" value="" />
+          <Picker.Item label="CC" value="CC" />
+          <Picker.Item label="TI" value="TI" />
         </Picker>
 
         <TextInput
@@ -122,13 +107,11 @@ const RegisterScreen = () => {
           onChangeText={setDocumentNumber}
           value={documentNumber} />
 
-        {/* Selector de roles */}
         <Picker
           selectedValue={role}
           onValueChange={(itemValue) => setRole(itemValue)}
           style={styles.input}>
           {roles.map((role) => {
-            console.log(role)
             return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />
           })}
         </Picker>
@@ -155,8 +138,8 @@ const RegisterScreen = () => {
         />
         <Button title="Listo" onPress={enviarDatos} color={'#39A900'} />
       </ScrollView>
-      <TouchableOpacity onPress={navigateToLogin}>
-        <Text style={styles.registerLink}>Iniciar Seccion</Text>
+      <TouchableOpacity onPress={navigateToHome}>
+        <Text style={styles.registerLink}>Iniciar Sesión</Text>
       </TouchableOpacity>
     </View>
   );
