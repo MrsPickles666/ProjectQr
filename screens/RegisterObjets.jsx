@@ -127,19 +127,14 @@ const RegisterObjets = () => {
                     selectedValue={selectedAmbiente}
                     onValueChange={handleAmbienteChange}
                     style={styles.input}>
-                    <Picker.Item  label="Seleccione un ambiente" value="" />
+                    <Picker.Item label="Seleccione un Ambiente" value="" />
                     {ambientes.map((ambiente) => (
 
                         <Picker.Item key={ambiente.id_amb} label={ambiente.nom_amb} value={ambiente.id_amb} />
                     ))}
                 </Picker>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Estado"
-                    onChangeText={setEstado}
-                    value={estado}
-                />
+                
                 <TextInput
                     style={styles.input}
                     placeholder="Observación"
@@ -157,7 +152,7 @@ const RegisterObjets = () => {
                     selectedValue={selectedCategory}
                     onValueChange={handleCategoryChange}
                     style={styles.input}>
-                    <Picker.Item  label="Seleccione un Categoria" value="" />
+                    <Picker.Item label="Seleccione una Categoria" value="" />
                     {categorias.map((categoria) => (
                         <Picker.Item key={categoria.id_cate} label={categoria.nom_cate} value={categoria.id_cate} />
                     ))}
@@ -169,6 +164,17 @@ const RegisterObjets = () => {
                     onChangeText={setMarca}
                     value={marca}
                 />
+                <Picker
+                    style={styles.input}
+                    selectedValue={estado}
+                    onValueChange={(itemValue) => setEstado(itemValue)}
+                >
+                    <Picker.Item label="Seleccione Estado" value="" />
+                    <Picker.Item label="ACTIVO" value="ACTIVO" />
+                    <Picker.Item label="EN USO" value="EN USO" />
+                    <Picker.Item label="DADO DE BAJA" value="DADO DE BAJA" />
+                </Picker>
+
                 <TextInput
                     style={styles.input}
                     placeholder="Valor"

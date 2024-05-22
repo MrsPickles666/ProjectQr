@@ -5,7 +5,6 @@ import { StatusBar, SafeAreaView } from 'react-native';
 
 
 import HomeScreen from './screens/HomeScreen';
-
 import Settingcreen from './screens/SettingScreen';
 import ComponentPantallas from './components/ComponentPantallas';
 import UserScreen from './screens/UserScreen';
