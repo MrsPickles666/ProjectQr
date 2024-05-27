@@ -17,7 +17,7 @@ const CameraScreen = () => {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    alert(`Tipo de codigo ${type} Informacion:--> ${data}  Fue escaneado`);
   };
 
   if (hasPermission === null) {
@@ -29,20 +29,34 @@ const CameraScreen = () => {
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
+      <BarCodeScanner 
+      
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
+        style={styles.camara}
       />
-      {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+      {scanned && <Button  color={"#39A900"} title={'Escanear QR'} onPress={() => setScanned(false)} style={styles.boton} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    marginTop:-25,
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'center',
+    height: "100%",
+    width: "100%",
+    
+  },
+  boton: {
+    
+    
+  },
+  camara: {
+    height: "100%",
+    width: "100%",
   },
 });
 
