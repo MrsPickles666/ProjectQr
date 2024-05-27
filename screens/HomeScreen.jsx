@@ -17,6 +17,10 @@ const HomeScreen = () => {
   };
 
   const navigation = useNavigation();
+  const navigateToCamera = () => {
+    navigation.navigate('Camera');
+  };
+  
   const navigateToSetting = () => {
     navigation.navigate('Setting');
   };
@@ -83,10 +87,11 @@ const HomeScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.containerCam}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={navigateToCamera}>
           <FontAwesomeIcon style={styles.Cam} name="camera" size={60} />
         </TouchableOpacity>
       </View>
+
 
 
     </View>

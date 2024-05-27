@@ -30,7 +30,7 @@ import RegisterAmbie from './screens/RegisterAmbie';
 import RegisterCatego from './screens/RegisterCatego';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
-
+import CameraScreen from './components/Camera';
 
 
 
@@ -41,8 +41,9 @@ const Navigation = () => {
     <SafeAreaView style={{ flex: 1 }}>
     <StatusBar barStyle="light-content" backgroundColor="#39A900" />
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="RegisterObjets">
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Details">
           <Stack.Screen name="otra" component={OtraPantalla} />
+          <Stack.Screen name="Camera" component={CameraScreen} />
           <Stack.Screen name="Token" component={VerToken} />
           <Stack.Screen name="Setting" component={Settingcreen} />
           <Stack.Screen name="Details" component={DetailScreen} />
