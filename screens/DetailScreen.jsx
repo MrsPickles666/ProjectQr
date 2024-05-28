@@ -1,24 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const DetailScreen = () => {
     const [objetos, setObjetos] = useState([]);
+    const [filteredObjetos, setFilteredObjetos] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedObjeto, setSelectedObjeto] = useState(null);
 
+    const navigation = useNavigation();
+
+    const NavigateToCrear = () => {
+        navigation.navigate('RegisterObjets');
+    }
+    
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.67.235:3000/objeto/all');
+                const response = await fetch('http://192.168.1.38:3000/objeto/all');
                 const data = await response.json();
                 console.log('Objetos recibidos:', data);
                 setObjetos(data);
+                setFilteredObjetos(data);
             } catch (error) {
                 console.error('Error fetching data: ', error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchObjetos();
     }, []);
+
+    useEffect(() => {
+        // Filtrar objetos cuando cambia la consulta de búsqueda
+        if (searchQuery === '') {
+            setFilteredObjetos(objetos); // Mostrar todos los objetos si no hay búsqueda
+        } else {
+            const filteredData = objetos.filter(objeto =>
+                objeto.marc_obj.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredObjetos(filteredData);
+        }
+    }, [searchQuery, objetos]);
+
+    const showModal = (objeto) => {
+        setSelectedObjeto(objeto);
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setSelectedObjeto(null);
+        setModalVisible(false);
+    };
 
     return (
         <View style={styles.container}>
@@ -33,18 +70,56 @@ const DetailScreen = () => {
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
-                <TouchableOpacity style={styles.searchButton}>
-                    <Text>Buscar</Text>
+            </View>
+
+            {loading ? (
+                <ActivityIndicator size="large" color="#39A900" />
+            ) : (
+                <ScrollView style={styles.inventary}>
+                    {filteredObjetos.length > 0 ? (
+                        filteredObjetos.map(objeto => (
+                            <TouchableOpacity key={objeto.id_obj} style={styles.item} onPress={() => showModal(objeto)}>
+                                <Text>{objeto.marc_obj}</Text>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text>No se encontraron objetos.</Text>
+                    )}
+                </ScrollView>
+            )}
+
+            <View style={styles.containerButton}>
+                <TouchableOpacity onPress={NavigateToCrear} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
+                    <Icon name="plus-circle" size={45} style={styles.agre} />
+                    <Text style={styles.buttonText}>AGREGAR</Text>
                 </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.inventary}>
-                {objetos.map(objeto => (
-                    <TouchableOpacity key={objeto.id} style={styles.item}>
-                        <Text>{objeto.name}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+            {selectedObjeto && (
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText}>ID: {selectedObjeto.id_obj}</Text>
+                            <Text style={styles.modalText}>Marca: {selectedObjeto.marc_obj}</Text>
+                            <Text style={styles.modalText}>Tipo: {selectedObjeto.tip_obj}</Text>
+                            <Text style={styles.modalText}>Estado: {selectedObjeto.est_obj}</Text>
+                            <Text style={styles.modalText}>Valor: {selectedObjeto.val_obj}</Text>
+                            <Text style={styles.modalText}>Observaciones: {selectedObjeto.obser_obj}</Text>
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={closeModal}
+                            >
+                                <Text style={styles.textStyle}>Cerrar</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </View>
     );
 };
@@ -84,9 +159,6 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         paddingHorizontal: 10,
     },
-    searchButton: {
-        marginLeft: 10,
-    },
     inventary: {
         height: 'auto',
         width: '100%',
@@ -102,6 +174,65 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
+    },
+    containerButton: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        position: 'absolute',
+        bottom: 20,
+    },
+    button: {
+        width: 130,
+        height: 50,
+        gap: 5,
+        justifyContent: 'center',
+        borderRadius: 100,
+        margin: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    agre: {
+        color: "#39A900",
+    },
+    buttonText: {
+        fontSize: 15,
+        color: '#000',
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    buttonClose: {
+        backgroundColor: '#2196F3',
+        marginTop: 10,
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
     },
 });
 
