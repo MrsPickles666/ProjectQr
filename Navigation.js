@@ -41,7 +41,7 @@ const Navigation = () => {
     <SafeAreaView style={{ flex: 1 }}>
     <StatusBar barStyle="light-content" backgroundColor="#39A900" />
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Details">
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
           <Stack.Screen name="otra" component={OtraPantalla} />
           <Stack.Screen name="Camera" component={CameraScreen} />
           <Stack.Screen name="Token" component={VerToken} />

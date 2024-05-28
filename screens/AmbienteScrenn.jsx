@@ -1,11 +1,17 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-const AmbienteScrenn = () => {
-    const navigation = useNavigation();
+const AmbienteScreen = () => {
+    const [ambientes, setAmbientes] = useState([]);
+    const [filteredAmbientes, setFilteredAmbientes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedAmbiente, setSelectedAmbiente] = useState(null);
+    const [loading, setLoading] = useState(true);
 
+    const navigation = useNavigation();
 
     const navigateEditar = () => {
         navigation.navigate('EditAmbien');
@@ -13,80 +19,132 @@ const AmbienteScrenn = () => {
 
     const RegisterAmbie = () => {
         navigation.navigate('RegisterAmbie');
-
     };
-    const navigateToHome = () => {
-        navigation.navigate('Home');
 
+    const showModal = (ambiente) => {
+        setSelectedAmbiente(ambiente);
+        setModalVisible(true);
     };
+
+    const closeModal = () => {
+        setSelectedAmbiente(null);
+        setModalVisible(false);
+    };
+
+    useEffect(() => {
+        const fetchAmbientes = async () => {
+            try {
+                const response = await fetch('http://192.168.244.143:3000/ambiente/all');
+                const data = await response.json();
+                // console.log('Ambientes recibidos:', data);
+                console.log('Ambientes recibidos:', data.data);
+                setAmbientes(data.data);
+                setFilteredAmbientes(data.data);
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAmbientes();
+    }, []);
+
+    useEffect(() => {
+        // Filtrar ambientes cuando cambia la consulta de búsqueda
+        if (searchQuery === '') {
+            setFilteredAmbientes(ambientes); // Mostrar todos los ambientes si no hay búsqueda
+        } else {
+            const filteredData = ambientes.filter(ambiente =>
+                ambiente.nom_amb.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredAmbientes(filteredData);
+        }
+    }, [searchQuery, ambientes]);
+
+    console.log('Ambientes:', ambientes);
+    console.log('FilteredAmbientes:', filteredAmbientes);
+
     return (
-        <View >
-            <View style={styles.container}>
-                <View style={styles.titulo}>
-                    <Text style={styles.tituloText}>Ambientes</Text>
-                </View>
-                <View style={styles.search}>
-                    <Text style={styles.searchLabel}>Buscar:</Text>
-                    <TextInput style={styles.inputSearch} placeholder="Escriba aquí" />
-                    <TouchableOpacity style={styles.searchButton}>
-                        <FontAwesomeIcon name="search" size={30} style={styles.searchIcon} />
-                    </TouchableOpacity>
-                </View>
-
-                <ScrollView style={styles.ambients}>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="laptop" size={30} style={styles.itemImage} />
-                        <Text style={styles.listInv}>Ambiente ADSO</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="paint-brush" size={30} style={styles.itemImage} />
-                        <Text style={styles.listInv}>Ambiente Artes Grafiacas</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="shopping-bag" size={30} style={styles.itemImage} />
-                        <Text style={styles.listInv}>Ambiente Confecciones</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="truck" size={30} style={styles.itemImage} />
-                        <Text style={styles.listInv}>Ambiente Automotriz</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                </ScrollView>
-
-                <View style={styles.containerButton}>
-                    <TouchableOpacity onPress={RegisterAmbie} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
-                        <FontAwesomeIcon name="plus-circle" size={45} style={styles.agre} />
-                        <Text style={styles.buttonText}>AGREGAR</Text>
-                    </TouchableOpacity>
-                </View>
-
+        <View style={styles.container}>
+            <View style={styles.titulo}>
+                <Text style={styles.tituloText}>Ambientes</Text>
             </View>
+            <View style={styles.search}>
+                <Text style={styles.searchLabel}>Buscar:</Text>
+                <TextInput
+                    style={styles.inputSearch}
+                    placeholder="Escriba aquí"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+                <TouchableOpacity style={styles.searchButton}>
+                    <FontAwesomeIcon name="search" size={30} style={styles.searchIcon} />
+                </TouchableOpacity>
+            </View>
+
+            {loading ? (
+                <ActivityIndicator size="large" color="#39A900" />
+            ) : (
+                <ScrollView style={styles.inventary}>
+                    {filteredAmbientes.length > 0 ? (
+                        filteredAmbientes.map(ambiente => (
+                            <TouchableOpacity key={ambiente.id_amb} style={styles.item} onPress={() => showModal(ambiente)}>
+                                <Text>{ambiente.nom_amb}</Text>
+
+                                <TouchableOpacity>
+                                    <FontAwesomeIcon name="pencil" size={20} style={styles.pencilIcon} />
+                                </TouchableOpacity>
+                            </TouchableOpacity>
+
+                        ))
+                    ) : (
+                        <Text>No se encontraron ambientes.</Text>
+                    )}
+                </ScrollView>
+            )}
+
+            <View style={styles.containerButton}>
+                <TouchableOpacity onPress={RegisterAmbie} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
+                    <FontAwesomeIcon name="plus-circle" size={45} style={styles.agre} />
+                    <Text style={styles.buttonText}>AGREGAR</Text>
+                </TouchableOpacity>
+            </View>
+
+            {selectedAmbiente && (
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+
+                            <Text><Text style={styles.modalText}>Id:</Text>  {selectedAmbiente.id_amb}</Text>
+                            <Text><Text style={styles.modalText}>Nombre: </Text>{selectedAmbiente.nom_amb}</Text>
+                            <Text><Text style={styles.modalText}>Centro: </Text>{selectedAmbiente.cen_fk}</Text>
+
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={closeModal}
+                            >
+                                <Text style={styles.textStyle}>Cerrar</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         alignItems: 'center',
+        justifyContent: 'flex-start',
+        backgroundColor: '#eeeeee',
     },
     titulo: {
         width: '100%',
@@ -121,9 +179,14 @@ const styles = StyleSheet.create({
     },
     searchIcon: {
         color: 'black',
+        
     },
-    ambients: {
+    pencilIcon:{
+        
+    },
+    inventary: {
         width: '100%',
+        height: 'auto',
     },
     item: {
         flexDirection: 'row',
@@ -157,20 +220,51 @@ const styles = StyleSheet.create({
     },
     agre: {
         color: "#39A900",
-
     },
-
     button: {
         width: 130,
         height: 50,
         gap: 5,
-        bottom: '-60%',
         justifyContent: 'center',
         borderRadius: 100,
         margin: 10,
-        marginBottom: 100,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+    },
+    buttonClose: {
+        backgroundColor: '#39A900',
+        marginTop: 10,
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    modalText: {
+        marginBottom: 15,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     buttonText: {
         fontSize: 15,
@@ -178,4 +272,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AmbienteScrenn;
+export default AmbienteScreen;

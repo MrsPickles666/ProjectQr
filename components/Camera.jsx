@@ -74,6 +74,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   border: {
+    margin: 15,
+    height:200,
+    width:200,
     borderWidth: 2,
     borderColor: '#39A900',
     padding: 10,

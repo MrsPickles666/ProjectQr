@@ -20,7 +20,7 @@ const DetailScreen = () => {
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.1.38:3000/objeto/all');
+                const response = await fetch('http://192.168.244.143:3000/objeto/all');
                 const data = await response.json();
                 console.log('Objetos recibidos:', data);
                 setObjetos(data);
@@ -104,12 +104,12 @@ const DetailScreen = () => {
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-                            <Text style={styles.modalText}>ID: {selectedObjeto.id_obj}</Text>
-                            <Text style={styles.modalText}>Marca: {selectedObjeto.marc_obj}</Text>
-                            <Text style={styles.modalText}>Tipo: {selectedObjeto.tip_obj}</Text>
-                            <Text style={styles.modalText}>Estado: {selectedObjeto.est_obj}</Text>
-                            <Text style={styles.modalText}>Valor: {selectedObjeto.val_obj}</Text>
-                            <Text style={styles.modalText}>Observaciones: {selectedObjeto.obser_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>ID:</Text> {selectedObjeto.id_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Marca:</Text> {selectedObjeto.marc_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Tipo:</Text> {selectedObjeto.tip_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Estado:</Text> {selectedObjeto.est_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Valor:</Text> {selectedObjeto.val_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Observaciones:</Text> {selectedObjeto.obser_obj}</Text>
                             <Pressable
                                 style={[styles.button, styles.buttonClose]}
                                 onPress={closeModal}
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     buttonClose: {
-        backgroundColor: '#2196F3',
+        backgroundColor: '#39A900',
         marginTop: 10,
     },
     textStyle: {
@@ -233,6 +233,9 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: 'center',
+    },
+    modalTitle: {
+        fontWeight: 'bold',
     },
 });
 
