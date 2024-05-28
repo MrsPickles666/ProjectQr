@@ -40,7 +40,7 @@ const RegisterObjets = () => {
 
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://192.168.244.143:3000/categorias/all');
+                const response = await fetch('http://192.168.1.38:3000/categorias/all');
                 const data = await response.json();
                 setCategorias(data.data);
             } catch (error) {
@@ -50,7 +50,7 @@ const RegisterObjets = () => {
 
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.244.143:3000/ambiente/all');
+                const response = await fetch('http://192.168.1.38:3000/ambiente/all');
                 const data = await response.json();
                 setAmbientes(data.data);
             } catch (error) {
@@ -130,7 +130,7 @@ const RegisterObjets = () => {
                     <Picker.Item label="Seleccione un Ambiente" value="" />
                     {ambientes.map((ambiente) => (
 
-                        <Picker.Item key={ambiente.id_amb} label={ambiente.nom_amb} value={ambiente.id_amb} />
+                        <Picker.Item key={ambiente.amb_id} label={ambiente.nom_amb} value={ambiente.id_amb} />
                     ))}
                 </Picker>
 

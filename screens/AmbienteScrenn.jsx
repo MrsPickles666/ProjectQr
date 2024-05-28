@@ -34,14 +34,14 @@ const AmbienteScreen = () => {
     useEffect(() => {
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.244.143:3000/ambiente/all');
+                const response = await fetch('http://192.168.1.38:3000/ambiente/all');
                 const data = await response.json();
-                // console.log('Ambientes recibidos:', data);
-                console.log('Ambientes recibidos:', data.data);
+
+
                 setAmbientes(data.data);
                 setFilteredAmbientes(data.data);
             } catch (error) {
-                console.error('Error fetching data: ', error);
+
             } finally {
                 setLoading(false);
             }
@@ -62,8 +62,6 @@ const AmbienteScreen = () => {
         }
     }, [searchQuery, ambientes]);
 
-    console.log('Ambientes:', ambientes);
-    console.log('FilteredAmbientes:', filteredAmbientes);
 
     return (
         <View style={styles.container}>
@@ -89,7 +87,7 @@ const AmbienteScreen = () => {
                 <ScrollView style={styles.inventary}>
                     {filteredAmbientes.length > 0 ? (
                         filteredAmbientes.map(ambiente => (
-                            <TouchableOpacity key={ambiente.id_amb} style={styles.item} onPress={() => showModal(ambiente)}>
+                            <TouchableOpacity key={ambiente.amb_id} style={styles.item} onPress={() => showModal(ambiente)}>
                                 <Text>{ambiente.nom_amb}</Text>
 
                                 <TouchableOpacity>
@@ -189,6 +187,7 @@ const styles = StyleSheet.create({
         height: 'auto',
     },
     item: {
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
         margin: 15,

@@ -20,13 +20,11 @@ const DetailScreen = () => {
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.244.143:3000/objeto/all');
+                const response = await fetch('http://192.168.1.38:3000/objeto/all');
                 const data = await response.json();
-                console.log('Objetos recibidos:', data);
                 setObjetos(data);
                 setFilteredObjetos(data);
             } catch (error) {
-                console.error('Error fetching data: ', error);
             } finally {
                 setLoading(false);
             }
@@ -60,7 +58,7 @@ const DetailScreen = () => {
     return (
         <View style={styles.container}>
             <View style={styles.titulo}>
-                <Text style={styles.tituloText}>Objetos</Text>
+                <Text style={styles.tituloText}>Activos</Text>
             </View>
             <View style={styles.search}>
                 <Text style={styles.searchLabel}>Buscar:</Text>
@@ -104,7 +102,7 @@ const DetailScreen = () => {
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-                            <Text><Text style={styles.modalTitle}>ID:</Text> {selectedObjeto.id_obj}</Text>
+                            <Text><Text style={styles.modalTitle}>Serial:</Text> {selectedObjeto.ser_obj}</Text>
                             <Text><Text style={styles.modalTitle}>Marca:</Text> {selectedObjeto.marc_obj}</Text>
                             <Text><Text style={styles.modalTitle}>Tipo:</Text> {selectedObjeto.tip_obj}</Text>
                             <Text><Text style={styles.modalTitle}>Estado:</Text> {selectedObjeto.est_obj}</Text>
@@ -209,9 +207,10 @@ const styles = StyleSheet.create({
     modalView: {
         margin: 20,
         backgroundColor: 'white',
+        alignItems: 'flex-start', // Alinea el contenido a la izquierda
         borderRadius: 20,
         padding: 35,
-        alignItems: 'center',
+       
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -236,6 +235,8 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontWeight: 'bold',
+        marginBottom: 5, // Espacio adicional entre líneas
+        textAlign: 'left', // Alinea el texto a la izquierda
     },
 });
 
