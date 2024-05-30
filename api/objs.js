@@ -2,7 +2,7 @@ const crearObj = async (formData, token) => {
     
     
     try {
-        const response = await fetch('http://192.168.252.130:3000/objeto/create', {
+        const response = await fetch('http://192.168.137.1:3000/objeto/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

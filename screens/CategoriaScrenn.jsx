@@ -1,9 +1,16 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const CategoriaScrenn = () => {
+    const [categorias, setCategorias] = useState([]);
+    const [filteredCategorias, setFilteredCategorias] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedCategoria, setSelectedCategoria] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     const navigation = useNavigation();
 
 
@@ -15,62 +22,89 @@ const CategoriaScrenn = () => {
         navigation.navigate('RegisterCatego');
 
     };
-    const navigateToHome = () => {
-        navigation.navigate('Home');
 
+    const showModal = (categoria) => {
+        setSelectedCategoria(categoria);
+        setModalVisible(true);
     };
+
+    const closeModal = () => {
+        setSelectedCategoria(null);
+        setModalVisible(false);
+    };
+
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const response = await fetch('http://192.168.137.1:3000/categorias/all');
+                const data = await response.json();
+
+
+                setCategorias(data.data);
+                setFilteredCategorias(data.data);
+            } catch (error) {
+
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCategorias();
+    }, []);
+
+    useEffect(() => {
+        // Filtrar categorias cuando cambia la consulta de búsqueda
+        if (searchQuery === '') {
+            setFilteredCategorias(categorias); // Mostrar todos los categorias si no hay búsqueda
+        } else {
+            const filteredData = categorias.filter(categoria =>
+                categoria.nom_cate.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredCategorias(filteredData);
+        } categorias
+    }, [searchQuery, categorias]);
+
     return (
-        <View >
             <View style={styles.container}>
                 <View style={styles.titulo}>
                     <Text style={styles.tituloText}>Categoria</Text>
                 </View>
                 <View style={styles.search}>
                     <Text style={styles.searchLabel}>Buscar:</Text>
-                    <TextInput style={styles.inputSearch} placeholder="Escriba aquí" />
+                    <TextInput
+                        style={styles.inputSearch}
+                        placeholder="Escriba aquí"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
                     <TouchableOpacity style={styles.searchButton}>
                         <FontAwesomeIcon name="search" size={30} style={styles.searchIcon} />
                     </TouchableOpacity>
                 </View>
 
-                <ScrollView style={styles.ambients}>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="laptop" size={30} style={styles.itemImage} />
-                        <Text style={styles.listCate}>Categoria de Electronica</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="paint-brush" size={30} style={styles.itemImage} />
-                        <Text style={styles.listCate}>Categoria de Muebles</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="shopping-bag" size={30} style={styles.itemImage} />
-                        <Text style={styles.listCate}>Categoria de Audiovisual</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.item}>
-                        <FontAwesomeIcon name="truck" size={30} style={styles.itemImage} />
-                        <Text style={styles.listCate}>Categoria de Automotriz</Text>
-                        <View style={styles.option}>
-                            <TouchableOpacity onPress={navigateEditar}>
-                                <FontAwesomeIcon name="pencil" size={20} style={styles.optionIcon} />
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                </ScrollView>
+
+
+
+                {loading ? (
+                    <ActivityIndicator size="large" color="#39A900" />
+                ) : (
+                    <ScrollView style={styles.inventary}>
+                        {filteredCategorias.length > 0 ? (
+                            filteredCategorias.map(categoria => (
+                                <TouchableOpacity key={categoria.id_cate} style={styles.item} onPress={() => showModal(categoria)}>
+                                    <Text>{categoria.nom_cate}</Text>
+
+                                    <TouchableOpacity>
+                                        <FontAwesomeIcon name="pencil" size={20} style={styles.pencilIcon} />
+                                    </TouchableOpacity>
+                                </TouchableOpacity>
+
+                            ))
+                        ) : (
+                            <Text>No se encontraron ambientes.</Text>
+                        )}
+                    </ScrollView>
+                )}
 
                 <View style={styles.containerButton}>
                     <TouchableOpacity onPress={RegisterCatego} style={[styles.button, { backgroundColor: 'rgb(191, 227, 173)' }]}>
@@ -80,8 +114,31 @@ const CategoriaScrenn = () => {
                 </View>
 
 
+                {selectedCategoria && (
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={closeModal}
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+
+                                <Text><Text style={styles.modalText}>Id:</Text>  {selectedCategoria.id_cate}</Text>
+                                <Text><Text style={styles.modalText}>Nombre: </Text>{selectedCategoria.nom_cate}</Text>
+
+                                <Pressable
+                                    style={[styles.button, styles.buttonClose]}
+                                    onPress={closeModal}
+                                >
+                                    <Text style={styles.textStyle}>Cerrar</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </Modal>
+                )}
+
             </View>
-        </View>
     );
 }
 
@@ -123,10 +180,12 @@ const styles = StyleSheet.create({
     searchIcon: {
         color: 'black',
     },
-    ambients: {
+    inventary: {
         width: '100%',
+        height: 'auto',
     },
     item: {
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
         margin: 15,
@@ -165,20 +224,51 @@ const styles = StyleSheet.create({
         width: 130,
         height: 50,
         gap: 5,
-        bottom: '-60%',
         justifyContent: 'center',
         borderRadius: 100,
         margin: 10,
-        marginBottom: 100,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     buttonText: {
         fontSize: 15,
         color: '#000',
     },
-
-
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalText: {
+        marginBottom: 15,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    buttonClose: {
+        backgroundColor: '#39A900',
+        marginTop: 10,
+    },
+    textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 });
 
 export default CategoriaScrenn;

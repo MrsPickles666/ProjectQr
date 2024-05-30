@@ -40,7 +40,7 @@ const RegisterObjets = () => {
 
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://192.168.252.130:3000/categorias/all');
+                const response = await fetch('http://192.168.137.1:3000/categorias/all');
                 const data = await response.json();
                 setCategorias(data.data);
             } catch (error) {
@@ -50,7 +50,7 @@ const RegisterObjets = () => {
 
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.252.130:3000/ambiente/all');
+                const response = await fetch('http://192.168.137.1:3000/ambiente/all');
                 const data = await response.json();
                 setAmbientes(data.data);
             } catch (error) {

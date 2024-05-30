@@ -30,11 +30,11 @@ const AmbienteScreen = () => {
         setSelectedAmbiente(null);
         setModalVisible(false);
     };
-
+    
     useEffect(() => {
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.252.130:3000/ambiente/all');
+                const response = await fetch('http://192.168.137.1:3000/ambiente/all');
                 const data = await response.json();
 
 
