@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { decode } from 'react-native-pure-jwt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -13,7 +13,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://192.168.1.38:3000/usuario/login', {
+      const response = await fetch('http://192.168.252.130:3000/usuario/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,12 +24,31 @@ const LoginScreen = () => {
         }),
       });
 
-
       const data = await response.json();
 
       if (response.ok) {
         const token = data.token;
-        await AsyncStorage.setItem('token',token);
+        console.log('Token:', token);
+
+        // Decodificar el token
+        try {
+          const decoded = await decode(
+            token,
+            'CANTS', // Llave secreta
+            {
+              skipValidation: true, // Ignorar validación para solo decodificar
+            }
+          );
+          console.log('Decoded data:', decoded);
+        } catch (error) {
+          console.error('Error decoding token:', error);
+          setErrorMessage('Error al decodificar el token.');
+          return;
+        }
+
+        await AsyncStorage.setItem('token', token);
+        console.log('Token stored successfully');
+
         // Si la respuesta es exitosa, redirige al usuario a la pantalla de inicio
         navigation.navigate('Home');
       } else {
@@ -38,7 +57,7 @@ const LoginScreen = () => {
       }
     } catch (error) {
       // Si hay un error en la solicitud, muestra un mensaje de error
-      console.error('Error de red:', error);
+      console.error('Network error:', error);
       setErrorMessage('Ocurrió un error de red. Por favor, intenta nuevamente.');
     }
   };
@@ -49,7 +68,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.tittle}>Inicio De Sesión</Text>
+      <Text style={styles.title}>Inicio De Sesión</Text>
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -98,7 +117,7 @@ const styles = StyleSheet.create({
     color: '#39A900',
     textDecorationLine: 'underline',
   },
-  tittle: {
+  title: {
     marginBottom: 32,
     fontSize: 24,
     fontWeight: 'bold',

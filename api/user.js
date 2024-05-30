@@ -1,6 +1,6 @@
 const crearUsu = async (formData, token) => {
     try {
-        const response = await fetch('http://192.168.1.38.143:3000/usuario/create',{
+        const response = await fetch('http://192.168.252.130:3000/usuario/create',{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

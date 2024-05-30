@@ -34,7 +34,7 @@ const AmbienteScreen = () => {
     useEffect(() => {
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.1.38:3000/ambiente/all');
+                const response = await fetch('http://192.168.252.130:3000/ambiente/all');
                 const data = await response.json();
 
 
@@ -87,7 +87,7 @@ const AmbienteScreen = () => {
                 <ScrollView style={styles.inventary}>
                     {filteredAmbientes.length > 0 ? (
                         filteredAmbientes.map(ambiente => (
-                            <TouchableOpacity key={ambiente.amb_id} style={styles.item} onPress={() => showModal(ambiente)}>
+                            <TouchableOpacity key={ambiente.id_amb} style={styles.item} onPress={() => showModal(ambiente)}>
                                 <Text>{ambiente.nom_amb}</Text>
 
                                 <TouchableOpacity>

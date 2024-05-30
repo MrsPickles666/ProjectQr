@@ -20,7 +20,7 @@ const DetailScreen = () => {
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.1.38:3000/objeto/all');
+                const response = await fetch('http://192.168.252.130:3000/objeto/all');
                 const data = await response.json();
                 setObjetos(data);
                 setFilteredObjetos(data);
