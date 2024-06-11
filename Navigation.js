@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, SafeAreaView } from 'react-native';
 
-
 import HomeScreen from './screens/HomeScreen';
 import Settingcreen from './screens/SettingScreen';
 import ComponentPantallas from './components/ComponentPantallas';
@@ -32,16 +31,26 @@ import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
 import CameraScreen from './components/Camera';
 
-
-
 const Stack = createStackNavigator();
+
+const forNoAnimation = ({ current }) => ({
+  cardStyle: {
+    opacity: current.progress,
+  },
+});
 
 const Navigation = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-    <StatusBar barStyle="light-content" backgroundColor="#39A900" />
+      <StatusBar barStyle="light-content" backgroundColor="#39A900" />
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            cardStyleInterpolator: forNoAnimation,
+          }}
+          initialRouteName="Login"
+        >
           <Stack.Screen name="otra" component={OtraPantalla} />
           <Stack.Screen name="Camera" component={CameraScreen} />
           <Stack.Screen name="Token" component={VerToken} />
@@ -69,7 +78,6 @@ const Navigation = () => {
           <Stack.Screen name="RegisterCatego" component={RegisterCatego} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
-
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

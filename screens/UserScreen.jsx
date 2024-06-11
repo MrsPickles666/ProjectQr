@@ -1,16 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
 
 
 
 const UserScreen = () => {
-    const navigation = useNavigation();
-
-    const navigateToHome = () => {
-        navigation.navigate('Home');
-    };
     return (
         <View style={styles.container}>
             <View style={styles.titulo}>
@@ -21,11 +15,11 @@ const UserScreen = () => {
                 <View style={styles.editContainer}>
                     <Text style={styles.editText}>Editar perfil </Text>
                     <TouchableOpacity>
-                        <FontAwesomeIcon name="pencil" size={30}/> 
+                        <FontAwesomeIcon name="pencil" size={30} />
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity>
-                    <FontAwesomeIcon name="user-circle" size={60}/>
+                    <FontAwesomeIcon name="user-circle" size={60} />
                 </TouchableOpacity>
             </View>
 
@@ -55,13 +49,8 @@ const UserScreen = () => {
                     <Text style={styles.infoDato}>Calle 30 No 12-54</Text>
                 </View>
             </View>
-            <View style={styles.flechaContainer}>
-                <TouchableOpacity onPress={navigateToHome} style={styles.flechaLeft}>
-                    <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon}  />
-                </TouchableOpacity>
-            </View>
         </View>
-        
+
     );
 };
 
@@ -85,9 +74,9 @@ const styles = StyleSheet.create({
         marginHorizontal: '5%',
         width: '90%',
         borderBottomWidth: 1,
-        flexDirection: 'row',   
-        justifyContent: 'space-between',  
-        alignItems: 'center', 
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 10,
     },
     editContainer: {
@@ -113,16 +102,6 @@ const styles = StyleSheet.create({
     },
     infoDato: {
         color: 'grey',
-    },
-    flechaContainer: {
-        position: 'absolute',
-        bottom: 0, 
-        right: 0, 
-        marginBottom: 40,
-        marginRight: 20, 
-    },
-    flechaIcon: {
-      color: 'black',
     },
 });
 

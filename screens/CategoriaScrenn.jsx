@@ -36,7 +36,7 @@ const CategoriaScrenn = () => {
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
-                const response = await fetch('http://192.168.137.1:3000/categorias/all');
+                const response = await fetch('http://192.168.81.71:3000/categorias/all');
                 const data = await response.json();
 
 

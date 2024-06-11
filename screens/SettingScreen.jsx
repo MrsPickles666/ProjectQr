@@ -24,43 +24,38 @@ const SettingScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.titulo}>
-          <Text style={styles.tituloText}>Ajustes</Text>
+        <Text style={styles.tituloText}>Ajustes</Text>
       </View>
       <View style={styles.containerSettin}>
-          <TouchableOpacity>
-              <FontAwesomeIcon name="gear" size={60}/>
-          </TouchableOpacity>
+        <TouchableOpacity>
+          <FontAwesomeIcon name="gear" size={60} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.containeOption}>
-          <View style={styles.Options}>
-            <TouchableOpacity style={styles.optionViews} onPress={navigateToCalif}>
-              <Text style={styles.optionText}>Calificanos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToCalif}>
-              <FontAwesomeIcon name="star" size={30}/>
-            </TouchableOpacity>
+        <View style={styles.Options}>
+          <TouchableOpacity style={styles.optionViews} onPress={navigateToCalif}>
+            <Text style={styles.optionText}>Calificanos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigateToCalif}>
+            <FontAwesomeIcon name="star" size={30} />
+          </TouchableOpacity>
 
-          </View>
-          <View style={styles.Options}>
-            <TouchableOpacity style={styles.optionViews} onPress={navigateToNov}>
-              <Text style={styles.optionText}>Novedad</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToNov}>
-              <FontAwesomeIcon name="headphones" size={30}/>
-            </TouchableOpacity>
-          </View>
+        </View>
+        <View style={styles.Options}>
+          <TouchableOpacity style={styles.optionViews} onPress={navigateToNov}>
+            <Text style={styles.optionText}>Novedad</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigateToNov}>
+            <FontAwesomeIcon name="headphones" size={30} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity onPress={navigateToLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Cerrar Sesion</Text>
+        <Text style={styles.buttonText}>Cerrar Sesion</Text>
       </TouchableOpacity>
-      
-      <View style={styles.flechaContainer}>
-          <TouchableOpacity onPress={navigateToHome}>
-              <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon} />
-          </TouchableOpacity>
-      </View>
+
     </View>
   );
 };
@@ -85,9 +80,9 @@ const styles = StyleSheet.create({
     marginHorizontal: '5%',
     width: '90%',
     borderBottomWidth: 1,
-    flexDirection: 'row',   
-    justifyContent: 'flex-end',  
-    alignItems: 'center', 
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     padding: 10,
   },
   containeOption: {
@@ -122,16 +117,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
-  },
-  flechaContainer: {
-    position: 'absolute',
-    bottom: 0, 
-    right: 0, 
-    marginBottom: 40,
-    marginRight: 40, 
-  },
-  flechaIcon: {
-    color: 'black',
   },
 });
 

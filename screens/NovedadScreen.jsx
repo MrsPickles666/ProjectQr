@@ -43,11 +43,7 @@ const NovedadScreen = () => {
             <TouchableOpacity onPress={navigateToHome} style={styles.button}>
                 <Text style={styles.buttonText}>Enviar</Text>
             </TouchableOpacity>
-            <View style={styles.flechaContainer}>
-                <TouchableOpacity onPress={navigateToSetting} style={styles.flechaLeft}>
-                    <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon}  />
-                </TouchableOpacity>
-            </View>
+
         </View>
     );
 };
@@ -131,16 +127,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'white',
       },
-      flechaContainer: {
-        position: 'absolute',
-        bottom: '-15%',
-        right: 0, 
-        marginBottom: 40,
-        marginRight: 20, 
-      },
-      flechaIcon: {
-        color: 'black',
-      },
+
 });
 
 export default NovedadScreen;

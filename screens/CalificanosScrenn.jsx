@@ -17,17 +17,24 @@ const CalificanosScreen = () => {
     const handleCheck = (starNumber) => {
         const num = parseInt(starNumber.replace('star', ''), 10);
         let newCheckState = {};
-        const isSelecting = !isChecked[starNumber];
+        const isCurrentlyChecked = isChecked[starNumber];
     
-        for (let i = 1; i <= 5; i++) {
-            if (isSelecting) {
-                newCheckState[`star${i}`] = i <= num;
-            } else {
+        if (isCurrentlyChecked && num === Object.keys(isChecked).reduce((acc, key) => {
+            return isChecked[key] ? parseInt(key.replace('star', ''), 10) : acc;
+        }, 0)) {
+            for (let i = 1; i <= num; i++) {
                 newCheckState[`star${i}`] = i < num;
             }
+        } else {
+            for (let i = 1; i <= 5; i++) {
+                newCheckState[`star${i}`] = i <= num;
+            }
         }
+    
         setIsChecked(newCheckState);
     };
+    
+    
     
 
     return (
@@ -62,11 +69,6 @@ const CalificanosScreen = () => {
             <TouchableOpacity onPress={navigateToHome} style={styles.button}>
                 <Text style={styles.buttonText}>Enviar</Text>
             </TouchableOpacity>
-            <View style={styles.flechaContainer}>
-                <TouchableOpacity onPress={navigateToSetting} style={styles.flechaLeft}>
-                    <FontAwesomeIcon name="arrow-left" size={40} style={styles.flechaIcon}  />
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
@@ -141,16 +143,6 @@ const styles = StyleSheet.create({
     buttonText: {
       fontSize: 18,
       color: 'white',
-    },
-    flechaContainer: {
-      position: 'absolute',
-    bottom: '-30%',
-      right: 0, 
-      marginBottom: 40,
-      marginRight: 20, 
-    },
-    flechaIcon: {
-      color: 'black',
     },
 });
 
