@@ -2,52 +2,104 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { Picker } from '@react-native-picker/picker';
 
 const AmbienteScreen = () => {
     const [ambientes, setAmbientes] = useState([]);
+    const [centros, setCentros] = useState([]);
     const [filteredAmbientes, setFilteredAmbientes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
+    const [viewModalVisible, setViewModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
     const [selectedAmbiente, setSelectedAmbiente] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [editNombre, setEditNombre] = useState('');
+    const [editCentro, setEditCentro] = useState('');
 
     const navigation = useNavigation();
-
-    const navigateEditar = () => {
-        navigation.navigate('EditAmbien');
-    };
 
     const RegisterAmbie = () => {
         navigation.navigate('RegisterAmbie');
     };
 
-    const showModal = (ambiente) => {
+    const showViewModal = (ambiente) => {
         setSelectedAmbiente(ambiente);
-        setModalVisible(true);
+        setViewModalVisible(true);
     };
 
-    const closeModal = () => {
-        setSelectedAmbiente(null);
-        setModalVisible(false);
+    const showEditModal = (ambiente) => {
+        setSelectedAmbiente(ambiente);
+        setEditNombre(ambiente.nom_amb);
+        setEditCentro(ambiente.cen_fk);
+        setEditModalVisible(true);
     };
-    
+
+    const closeViewModal = () => {
+        setSelectedAmbiente(null);
+        setViewModalVisible(false);
+    };
+
+    const closeEditModal = () => {
+        setSelectedAmbiente(null);
+        setEditModalVisible(false);
+    };
+
+    const updateAmbiente = async () => {
+        try {
+            const response = await fetch(`http://192.168.1.5:3000/ambiente/${selectedAmbiente.id_amb}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nom_amb: editNombre,
+                    cen_fk: editCentro,
+                }),
+            });
+
+            if (response.ok) {
+                const updatedAmbientes = ambientes.map(amb => 
+                    amb.id_amb === selectedAmbiente.id_amb
+                    ? { ...amb, nom_amb: editNombre, cen_fk: editCentro }
+                    : amb
+                );
+                setAmbientes(updatedAmbientes);
+                setFilteredAmbientes(updatedAmbientes);
+                closeEditModal();
+            } else {
+                console.error('Error actualizando ambiente');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.81.71:3000/ambiente/all');
+                const response = await fetch('http://192.168.1.5:3000/ambiente/all');
                 const data = await response.json();
-
-
                 setAmbientes(data.data);
                 setFilteredAmbientes(data.data);
             } catch (error) {
-
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
+        const fetchCentros = async () => {
+            try {
+                const response = await fetch('http://192.168.1.5:3000/centro/all');
+                const data = await response.json();
+                setCentros(data.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
         fetchAmbientes();
+        fetchCentros();
     }, []);
 
     useEffect(() => {
@@ -61,7 +113,6 @@ const AmbienteScreen = () => {
             setFilteredAmbientes(filteredData);
         }
     }, [searchQuery, ambientes]);
-
 
     return (
         <View style={styles.container}>
@@ -87,14 +138,14 @@ const AmbienteScreen = () => {
                 <ScrollView style={styles.inventary}>
                     {filteredAmbientes.length > 0 ? (
                         filteredAmbientes.map(ambiente => (
-                            <TouchableOpacity key={ambiente.id_amb} style={styles.item} onPress={() => showModal(ambiente)}>
-                                <Text>{ambiente.nom_amb}</Text>
-
-                                <TouchableOpacity>
+                            <View key={ambiente.id_amb} style={styles.item}>
+                                <TouchableOpacity onPress={() => showViewModal(ambiente)}>
+                                    <Text>{ambiente.nom_amb}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => showEditModal(ambiente)}>
                                     <FontAwesomeIcon name="pencil" size={20} style={styles.pencilIcon} />
                                 </TouchableOpacity>
-                            </TouchableOpacity>
-
+                            </View>
                         ))
                     ) : (
                         <Text>No se encontraron ambientes.</Text>
@@ -113,19 +164,60 @@ const AmbienteScreen = () => {
                 <Modal
                     animationType="slide"
                     transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={closeModal}
+                    visible={viewModalVisible}
+                    onRequestClose={closeViewModal}
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-
                             <Text><Text style={styles.modalText}>Id:</Text>  {selectedAmbiente.id_amb}</Text>
-                            <Text><Text style={styles.modalText}>Nombre: </Text>{selectedAmbiente.nom_amb}</Text>
-                            <Text><Text style={styles.modalText}>Centro: </Text>{selectedAmbiente.cen_fk}</Text>
-
+                            <Text><Text style={styles.modalText}>Nombre:</Text>  {selectedAmbiente.nom_amb}</Text>
+                            <Text><Text style={styles.modalText}>Centro:</Text>  {selectedAmbiente.cen_fk}</Text>
                             <Pressable
                                 style={[styles.button, styles.buttonClose]}
-                                onPress={closeModal}
+                                onPress={closeViewModal}
+                            >
+                                <Text style={styles.textStyle}>Cerrar</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            )}
+
+            {selectedAmbiente && (
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={editModalVisible}
+                    onRequestClose={closeEditModal}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text><Text style={styles.modalText}>Id:</Text>  {selectedAmbiente.id_amb}</Text>
+                            <Text><Text style={styles.modalText}>Nombre:</Text></Text>
+                            <TextInput
+                                style={styles.input}
+                                value={editNombre}
+                                onChangeText={setEditNombre}
+                            />
+                            <Text><Text style={styles.modalText}>Centro:</Text></Text>
+                            <Picker
+                                selectedValue={editCentro}
+                                style={styles.input}
+                                onValueChange={(itemValue) => setEditCentro(itemValue)}
+                            >
+                                {ambientes.map((centro) => (
+                                    <Picker.Item key={centro.cen_fk} label={centro.cen_fk} value={centro.id_centro} />
+                                ))}
+                            </Picker>
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={updateAmbiente}
+                            >
+                                <Text style={styles.textStyle}>Guardar</Text>
+                            </Pressable>
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={closeEditModal}
                             >
                                 <Text style={styles.textStyle}>Cerrar</Text>
                             </Pressable>
@@ -136,7 +228,6 @@ const AmbienteScreen = () => {
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -177,10 +268,8 @@ const styles = StyleSheet.create({
     },
     searchIcon: {
         color: 'black',
-        
     },
-    pencilIcon:{
-        
+    pencilIcon: {
     },
     inventary: {
         width: '100%',
@@ -198,21 +287,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
-    },
-    itemImage: {
-        marginRight: 10,
-    },
-    listInv: {
-        flex: 1,
-        fontSize: 16,
-        color: '#333333',
-    },
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    optionIcon: {
-        marginRight: 5,
     },
     containerButton: {
         flexDirection: 'row',
@@ -268,6 +342,15 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 15,
         color: '#000',
+    },
+    input: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 5,
+        width: '100%',
+        marginBottom: 15,
+        paddingHorizontal: 10,
     },
 });
 
