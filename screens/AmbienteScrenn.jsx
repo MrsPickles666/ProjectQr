@@ -46,7 +46,7 @@ const AmbienteScreen = () => {
 
     const updateAmbiente = async () => {
         try {
-            const response = await fetch(`http://192.168.1.5:3000/ambiente/${selectedAmbiente.id_amb}`, {
+            const response = await fetch(`http://192.168.1.5:3000/ambiente/${selectedAmbiente.id_amb}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,18 +56,17 @@ const AmbienteScreen = () => {
                     cen_fk: editCentro,
                 }),
             });
-
+    
             if (response.ok) {
-                const updatedAmbientes = ambientes.map(amb => 
-                    amb.id_amb === selectedAmbiente.id_amb
-                    ? { ...amb, nom_amb: editNombre, cen_fk: editCentro }
-                    : amb
+                const updatedAmbientes = ambientes.map(amb =>
+                    amb.id_amb === selectedAmbiente.id_amb ? { ...amb, nom_amb: editNombre, cen_fk: editCentro } : amb
                 );
                 setAmbientes(updatedAmbientes);
                 setFilteredAmbientes(updatedAmbientes);
                 closeEditModal();
             } else {
-                console.error('Error actualizando ambiente');
+                const errorData = await response.json();
+                console.error('Error actualizando ambiente:', errorData);
             }
         } catch (error) {
             console.error('Error:', error);
