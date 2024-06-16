@@ -42,7 +42,7 @@ const CategoriaScreen = () => {
 
     const updateCategoria = async () => {
         try {
-            const response = await fetch(`http://192.168.1.5:3000/categorias/${selectedCategoria.id_cate}/update`, {
+            const response = await fetch(`http://192.168.81.71:3000/categorias/${selectedCategoria.id_cate}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const CategoriaScreen = () => {
     useEffect(() => {
         const fetchCategorias = async () => {
             try {
-                const response = await fetch('http://192.168.1.5:3000/categorias/all');
+                const response = await fetch('http://192.168.81.71:3000/categorias/all');
                 const data = await response.json();
                 setCategorias(data.data);
                 setFilteredCategorias(data.data);

@@ -5,18 +5,26 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
+    (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
-    };
-    getBarCodeScannerPermissions();
+    })();
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    alert(`Código Escaneado:\nTipo: ${type}\nDatos: ${data}`);
+    if (scanning) {
+      setScanned(true);
+      alert(`Código Escaneado:\nTipo: ${type}\nDatos: ${data}`);
+      setScanning(false); // Desactivar el escaneo después de escanear uno
+    }
+  };
+
+  const startScan = () => {
+    setScanned(false);
+    setScanning(true);
   };
 
   if (hasPermission === null) {
@@ -30,19 +38,17 @@ const CameraScreen = () => {
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={styles.camera}
+        style={StyleSheet.absoluteFillObject}
       />
-      {scanned && (
-        <View style={styles.overlay}>
-          <Text style={styles.scanText}>Código Escaneado</Text>
-          <View style={styles.border} />
-          <Button
-            title={'Escanear de Nuevo'}
-            onPress={() => setScanned(false)}
-            color="#39A900"
-          />
-        </View>
-      )}
+      <View style={styles.overlay}>
+        <Text style={styles.scanText}>Ubica el QR en el cuadro: </Text>
+        <View style={styles.border} />
+        <Button
+          title={'Escanear Codigo QR'}
+          onPress={startScan} // Iniciar el escaneo al presionar el botón
+          color="#39A900"
+        />
+      </View>
     </View>
   );
 };
@@ -54,32 +60,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  camera: {
-    height: '100%',
-    width: '100%',
-  },
   overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   scanText: {
     fontSize: 24,
     color: 'white',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   border: {
-    margin: 15,
-    height:200,
-    width:200,
+    height: 350,
+    width: 350,
     borderWidth: 2,
+    marginBottom: 20,
     borderColor: '#39A900',
-    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
 });
 

@@ -1,67 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Image, Pressable} from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const DetailScreen = () => {
-    const [objetos, setObjetos] = useState([]); // Estado para almacenar todos los objetos desde la API
-    const [filteredObjetos, setFilteredObjetos] = useState([]); // Estado para almacenar objetos filtrados según la búsqueda
-    const [searchQuery, setSearchQuery] = useState(''); // Estado para el valor de búsqueda
-    const [loading, setLoading] = useState(true); // Estado para el indicador de carga
-    const [viewModalVisible, setViewModalVisible] = useState(false); // Estado para la visibilidad del modal de ver objeto
-    const [editModalVisible, setEditModalVisible] = useState(false); // Estado para la visibilidad del modal de editar objeto
-    const [selectedObjeto, setSelectedObjeto] = useState(null); // Estado para almacenar el objeto seleccionado
-    const [editMarca, setEditMarca] = useState(''); // Estado para el valor editado del objeto
+    const [objetos, setObjetos] = useState([]);
+    const [filteredObjetos, setFilteredObjetos] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [viewModalVisible, setViewModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [selectedObjeto, setSelectedObjeto] = useState(null);
+    const [editMarca, setEditMarca] = useState('');
     const [editSerial, setEditSerial] = useState('');
     const [editTipo, setEditTipo] = useState('');
     const [editEstado, setEditEstado] = useState('');
     const [editValor, setEditValor] = useState('');
     const [editObservaciones, setEditObservaciones] = useState('');
-    const navigation = useNavigation(); // Hook de navegación
+    const navigation = useNavigation();
 
-    // Función para navegar a la pantalla de creación de objetos
     const navigateToCrear = () => {
         navigation.navigate('RegisterObjets');
     }
 
-    // Obtener la lista de objetos desde la API al cargar la pantalla
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.1.5:3000/objeto/all');
+                const response = await fetch('http://192.168.81.71:3000/objeto/all');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
                 const data = await response.json();
-                setObjetos(data); // Almacenar todos los objetos en el estado
-                setFilteredObjetos(data); // Almacenar todos los objetos filtrados inicialmente
+                setObjetos(data);
+                setFilteredObjetos(data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
-                setLoading(false); // Finalizar la carga, independientemente del resultado
+                setLoading(false);
             }
         };
 
         fetchObjetos();
     }, []);
 
-    // Filtrar objetos según la consulta de búsqueda
     useEffect(() => {
         if (searchQuery === '') {
-            setFilteredObjetos(objetos); // Mostrar todos los objetos si no hay búsqueda
+            setFilteredObjetos(objetos);
         } else {
             const filteredData = objetos.filter(objeto =>
                 objeto.marc_obj.toLowerCase().includes(searchQuery.toLowerCase())
             );
-            setFilteredObjetos(filteredData); // Aplicar filtro según la consulta de búsqueda
+            setFilteredObjetos(filteredData);
         }
     }, [searchQuery, objetos]);
 
-    // Función para mostrar el modal de ver objeto
-    const showViewModal = (objeto) => {
-        setSelectedObjeto(objeto);
-        setViewModalVisible(true);
+    const arrayBufferToBase64 = (buffer) => {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
     };
+
+    const showViewModal = async (objeto) => {
+        try {
+            const response = await fetch(`http://192.168.81.71:3000/objeto/${objeto.id_obj}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const data = await response.json();
+            data.qrimagen = arrayBufferToBase64(data.qrimagen.data);
+            setSelectedObjeto(data);
+            setViewModalVisible(true);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
     const showEditModal = (objeto) => {
         setSelectedObjeto(objeto);
         setEditMarca(objeto.marc_obj);
@@ -73,29 +90,25 @@ const DetailScreen = () => {
         setEditModalVisible(true);
     };
 
-
-    // Cerrar el modal
     const closeViewModal = () => {
         setSelectedObjeto(null);
         setViewModalVisible(false);
     };
+
     const closeEditModal = () => {
         setSelectedObjeto(null);
         setEditMarca('');
+        setEditSerial('');
+        setEditTipo('');
+        setEditEstado('');
+        setEditValor('');
+        setEditObservaciones('');
         setEditModalVisible(false);
     };
 
-
-    // Imprimir el valor de selectedObjeto.qrimagen para verificar
-    useEffect(() => {
-        if (selectedObjeto) {
-            console.log('Valor de selectedObjeto.qrimagen:', selectedObjeto.qrimagen);
-        }
-    }, [selectedObjeto]);
-
     const updateObjeto = async () => {
         try {
-            const response = await fetch(`http://192.168.1.5:3000/objeto/${selectedObjeto.id_obj}/update`, {
+            const response = await fetch(`http://192.168.81.71:3000/objeto/${selectedObjeto.id_obj}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -107,7 +120,6 @@ const DetailScreen = () => {
                     est_obj: editEstado,
                     val_obj: editValor,
                     obser_obj: editObservaciones,
-                    // Otros campos a actualizar según tu necesidad
                 }),
             });
 
@@ -121,7 +133,6 @@ const DetailScreen = () => {
                         est_obj: editEstado,
                         val_obj: editValor,
                         obser_obj: editObservaciones,
-                        // Actualizar otros campos según tu necesidad
                     } : obj
                 );
                 setObjetos(updatedObjetos);
@@ -135,7 +146,6 @@ const DetailScreen = () => {
             console.error('Error:', error);
         }
     };
-
 
     return (
         <View style={styles.container}>
@@ -194,26 +204,23 @@ const DetailScreen = () => {
                             <Text><Text style={styles.modalTitle}>Estado:</Text> {selectedObjeto.est_obj}</Text>
                             <Text><Text style={styles.modalTitle}>Valor:</Text> {selectedObjeto.val_obj}</Text>
                             <Text><Text style={styles.modalTitle}>Observaciones:</Text> {selectedObjeto.obser_obj}</Text>
-                            {/* Mostrar la imagen del QR */}
                             {selectedObjeto.qrimagen && (
-                                <Image
-                                    style={styles.qrCodeImage}
-                                    source={{ uri: `data:image/png;base64,${selectedObjeto.qrimagen}` }}
-                                />
+                                <>
+                                    <Text style={styles.modalTitle}>Qr del Objeto: </Text>
+                                    <Image
+                                        style={styles.qrCodeImage}
+                                        source={{ uri: `data:image/png;base64,${selectedObjeto.qrimagen}` }}
+                                    />
+                                </>
                             )}
-
-                            <TouchableOpacity
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={closeViewModal}
-                            >
+                            <Pressable style={[styles.button, styles.buttonClose]} onPress={closeViewModal}>
                                 <Text style={styles.textStyle}>Cerrar</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                     </View>
                 </Modal>
-
-
             )}
+
             {selectedObjeto && (
                 <Modal
                     animationType="slide"
@@ -223,7 +230,7 @@ const DetailScreen = () => {
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-                            <Text style={styles.modalTitle}>Editar Objeto</Text>
+                            <Text style={styles.modalText}>EDITAR</Text>
                             <Text><Text style={styles.modalText}>MARCA:</Text></Text>
                             <TextInput
                                 style={styles.input}
@@ -334,7 +341,6 @@ const styles = StyleSheet.create({
     },
     containerButton: {
         flexDirection: 'row',
-   
     },
     button: {
         width: 130,
@@ -390,15 +396,17 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontWeight: 'bold',
-        marginBottom: 5, // Espacio adicional entre líneas
-        textAlign: 'left', // Alinea el texto a la izquierda
+        marginBottom: 5,
+        textAlign: 'left',
     },
     qrCodeImage: {
-        width: '100%',
-        height: 200,
-        marginTop: 10,
+        width: 300,
+        height: 300,
+        marginTop: 0,
         marginBottom: 10,
         resizeMode: 'contain',
+        borderWidth: 1,
+        borderColor: 'black',
     },
     input: {
         height: 40,
@@ -409,7 +417,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 10,
     },
-
 });
 
 export default DetailScreen;
