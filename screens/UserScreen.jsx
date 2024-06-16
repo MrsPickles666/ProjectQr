@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Button, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { Picker } from '@react-native-picker/picker';
 
 const UserScreen = () => {
   const [userData, setUserData] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    num_doc: '',
+    nom_fun: '',
+    ape_fun: '',
+    email: '',
+    tel_fun: '',
+    id_rol_fk: ''
+  });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState('success'); // success or error
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -15,6 +28,14 @@ const UserScreen = () => {
         if (storedUserData) {
           const user = JSON.parse(storedUserData);
           setUserData(user);
+          setEditData({
+            num_doc: user.num_doc.toString(),
+            nom_fun: user.nom_fun,
+            ape_fun: user.ape_fun,
+            email: user.email,
+            tel_fun: user.tel_fun,
+            id_rol_fk: user.id_rol_fk.toString()
+          });
         }
       } catch (error) {
         console.error('Error al obtener los datos del usuario:', error);
@@ -37,17 +58,107 @@ const UserScreen = () => {
     }
   };
 
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditData({
+      ...editData,
+      num_doc: userData.num_doc.toString(),
+      nom_fun: userData.nom_fun,
+      ape_fun: userData.ape_fun,
+      email: userData.email,
+      tel_fun: userData.tel_fun,
+      id_rol_fk: userData.id_rol_fk.toString()
+    });
+  };
+
+  const handleSave = async () => {
+    if (JSON.stringify(editData) === JSON.stringify({
+      num_doc: userData.num_doc.toString(),
+      nom_fun: userData.nom_fun,
+      ape_fun: userData.ape_fun,
+      email: userData.email,
+      tel_fun: userData.tel_fun,
+      id_rol_fk: userData.id_rol_fk.toString()
+    })) {
+      setModalMessage('No se han realizado cambios.');
+      setModalType('error');
+      setModalVisible(true);
+      return;
+    }
+
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token not found. Please log in again.');
+      }
+
+      const response = await fetch(`http://192.168.81.71:3000/usuario/${parseInt(userData.num_doc)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...editData,
+          num_doc: parseInt(editData.num_doc),
+          id_rol_fk: parseInt(editData.id_rol_fk),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Unknown error');
+      }
+
+      const updatedUserData = await response.json();
+      setUserData(updatedUserData);
+      AsyncStorage.setItem('user', JSON.stringify(updatedUserData));
+      setIsEditing(false);
+      setModalMessage('Los cambios se guardaron correctamente.');
+      setModalType('success');
+      setModalVisible(true);
+
+
+    } catch (error) {
+      console.error('Error al actualizar los datos del usuario:', error.message);
+      setModalMessage('Error al guardar los cambios. Por favor, intenta nuevamente.');
+      setModalType('error');
+      setModalVisible(true);
+    }
+  };
+
+  const handleChange = (key, value) => {
+    if (key === 'tel_fun') {
+      // Validar que el valor ingresado solo contenga números
+      if (/^\d*$/.test(value)) {
+        setEditData({ ...editData, [key]: value });
+      }
+    } else {
+      setEditData({ ...editData, [key]: value });
+    }
+  };
+
+  const closeModal = () => {
+    if (modalType === 'error') {
+      handleCancel();
+    }
+    setModalVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.titulo}>
         <Text style={styles.tituloText}>Mi perfil</Text>
       </View>
-
       <View style={styles.containerUser}>
         <View style={styles.editContainer}>
-          <Text style={styles.editText}>Editar perfil </Text>
-          <TouchableOpacity>
-            <FontAwesomeIcon name="pencil" size={30} />
+          <Text style={styles.editText}>{isEditing ? 'Cancelar edición' : 'Editar perfil'}</Text>
+          <TouchableOpacity onPress={isEditing ? handleCancel : () => setIsEditing(true)}>
+            <FontAwesomeIcon name={isEditing ? 'times' : 'pencil'} size={30} />
           </TouchableOpacity>
         </View>
         <TouchableOpacity>
@@ -56,33 +167,125 @@ const UserScreen = () => {
       </View>
 
       {userData && (
-        <View style={styles.containeInfo}>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Documento:</Text>
-            <Text style={styles.infoDato}>{userData.num_doc}</Text>
+        <View style={styles.containerInfo}>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Documento:</Text>
+            <Text style={styles.infoData}>{userData.num_doc}</Text>
           </View>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Nombre:</Text>
-            <Text style={styles.infoDato}>{userData.nom_fun}</Text>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Nombre:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={editData.nom_fun}
+                onChangeText={(text) => handleChange('nom_fun', text)}
+              />
+            ) : (
+              <Text style={styles.infoData}>{userData.nom_fun}</Text>
+            )}
           </View>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Apellido:</Text>
-            <Text style={styles.infoDato}>{userData.ape_fun}</Text>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Apellido:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={editData.ape_fun}
+                onChangeText={(text) => handleChange('ape_fun', text)}
+              />
+            ) : (
+              <Text style={styles.infoData}>{userData.ape_fun}</Text>
+            )}
           </View>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Correo:</Text>
-            <Text style={styles.infoDato}>{userData.email}</Text>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Correo:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={editData.email}
+                onChangeText={(text) => handleChange('email', text)}
+              />
+            ) : (
+              <Text style={styles.infoData}>{userData.email}</Text>
+            )}
           </View>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Telefono:</Text>
-            <Text style={styles.infoDato}>{userData.tel_fun}</Text>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Teléfono:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={editData.tel_fun}
+                onChangeText={(text) => handleChange('tel_fun', text)}
+                keyboardType="numeric"
+              />
+            ) : (
+              <Text style={styles.infoData}>{userData.tel_fun}</Text>
+            )}
           </View>
-          <View style={styles.Info}>
-            <Text style={styles.infoTitul}>Rol:</Text>
-            <Text style={styles.infoDato}>{getRolName(userData.id_rol_fk)}</Text>
+          <View style={styles.info}>
+            <Text style={styles.infoTitle}>Rol:</Text>
+            {isEditing ? (
+              <Picker
+                selectedValue={editData.id_rol_fk}
+                style={styles.picker}
+                onValueChange={(itemValue) => handleChange('id_rol_fk', itemValue)}
+              >
+                <Picker.Item label="ADMINISTRADOR" value={1} />
+                <Picker.Item label="FUNCIONARIO" value={2} />
+                <Picker.Item label="APRENDIZ" value={3} />
+              </Picker>
+            ) : (
+              <Text style={styles.infoData}>{getRolName(parseInt(userData.id_rol_fk))}</Text>
+            )}
           </View>
         </View>
       )}
+
+      {isEditing && (
+        <View style={styles.buttonContainer}>
+          <Pressable
+            style={[
+              styles.modalButton,
+              styles.modalButtonClose,
+            ]}
+            onPress={handleCancel}
+          >
+            <Text style={styles.modalButtonText}>Cancelar</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.modalButton,
+              styles.modalButtonConfirm,
+            ]}
+            onPress={handleSave}
+          >
+            <Text style={styles.modalButtonText}>Guardar</Text>
+          </Pressable>
+        </View>
+      )}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>
+              {modalType === 'success' ? '¡Éxito!' : 'Error'}
+            </Text>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <Pressable
+              style={[
+                styles.modalButton,
+                modalType === 'success' ? styles.modalButtonConfirm : styles.modalButtonClose,
+              ]}
+              onPress={closeModal}
+            >
+              <Text style={styles.modalButtonText}>Aceptar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -107,34 +310,95 @@ const styles = StyleSheet.create({
     marginHorizontal: '5%',
     width: '90%',
     borderBottomWidth: 1,
+    borderBottomColor: '#dddddd',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
   },
   editContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    bottom: -25,
   },
   editText: {
     fontSize: 20,
+    marginRight: 10,
   },
-  containeInfo: {
-    alignSelf: 'flex-start',
-    width: '100%',
-    padding: 10,
+  containerInfo: {
+    paddingHorizontal: '5%',
+    width: '90%',
   },
-  Info: {
+  info: {
     padding: 10,
     marginBottom: 10,
   },
-  infoTitul: {
+  infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  infoDato: {
+  infoData: {
+    fontSize: 18,
     color: 'grey',
+  },
+  input: {
+    height: 35,
+    borderColor: '#dddddd',
+    marginTop: 10,
+    marginBottom: -10,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    width: '50%',
+  },
+  picker: {
+    height: 35,
+    width: '60%',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 10,
+    width: 120,
+  },
+  modalButtonClose: {
+    backgroundColor: 'gray',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#39A900',
+  },
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

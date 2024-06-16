@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // useFocusEffect instead of useRoute
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
@@ -10,21 +10,24 @@ const HomeScreen = () => {
   const slideAnimation = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('user');
-        if (userData) {
-          const user = JSON.parse(userData);
-          setUserName(user.nom_fun); // Ajusta esto según el nombre del campo en tu respuesta
+  // Este efecto se ejecutará cada vez que la pantalla obtenga enfoque
+  useFocusEffect(
+    React.useCallback(() => {
+      const getUserData = async () => {
+        try {
+          const userData = await AsyncStorage.getItem('user');
+          if (userData) {
+            const user = JSON.parse(userData);
+            setUserName(user.nom_fun); // Ajusta esto según el nombre del campo en tu respuesta
+          }
+        } catch (error) {
+          console.error('Error al obtener los datos del usuario:', error);
         }
-      } catch (error) {
-        console.error('Error al obtener los datos del usuario:', error);
-      }
-    };
+      };
 
-    getUserData();
-  }, []);
+      getUserData();
+    }, [])
+  );
 
   const btnBars = () => {
     setMostrarBarra(!mostrarBarra);

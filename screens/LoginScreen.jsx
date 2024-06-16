@@ -3,7 +3,6 @@ import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const LoginScreen = () => {
   const navigation = useNavigation();
 
@@ -15,6 +14,7 @@ const LoginScreen = () => {
     const unsubscribe = navigation.addListener('focus', () => {
       setEmail('');
       setPassword('');
+      setErrorMessage('');
     });
 
     return unsubscribe;
@@ -32,19 +32,19 @@ const LoginScreen = () => {
           password: password,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         const token = data.token;
         await AsyncStorage.setItem('token', token);
-        
-        if (data.user) { 
+
+        if (data.user) {
           await AsyncStorage.setItem('user', JSON.stringify(data.user));
         } else {
           console.warn('User data is missing in the response');
         }
-  
+
         navigation.navigate('Home');
       } else {
         setErrorMessage(data.message || 'Ocurrió un error durante el inicio de sesión.');
@@ -61,7 +61,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.tittle}>Inicio De Sesión</Text>
+      <Text style={styles.title}>Inicio De Sesión</Text>
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -82,7 +82,7 @@ const LoginScreen = () => {
       <TouchableOpacity onPress={handleRegisterLink}>
         <Text style={styles.registerLink}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
-      <Button title="Iniciar Sesión" onPress={handleLogin} color={'#39A900'} />
+      <Button title="Iniciar Sesión" onPress={handleLogin} color="#39A900" />
     </View>
   );
 };
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 16,
+    textAlign: 'center',
   },
   registerLink: {
     marginBottom: 16,
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     color: '#39A900',
     textDecorationLine: 'underline',
   },
-  tittle: {
+  title: {
     marginBottom: 32,
     fontSize: 24,
     fontWeight: 'bold',
