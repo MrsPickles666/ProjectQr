@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, View, StyleSheet, Button, Modal, Pressable } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [scanData, setScanData] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -17,14 +19,26 @@ const CameraScreen = () => {
   const handleBarCodeScanned = ({ type, data }) => {
     if (scanning) {
       setScanned(true);
-      alert(`Código Escaneado:\nTipo: ${type}\nDatos: ${data}`);
-      setScanning(false); // Desactivar el escaneo después de escanear uno
+      try {
+        const parsedData = JSON.parse(data);
+        setScanData(parsedData);
+      } catch (error) {
+        console.error('Error parsing scanned data:', error);
+        setScanData({ error: 'Error parsing data' });
+      }
+      setModalVisible(true);
+      setScanning(false);
     }
   };
 
   const startScan = () => {
     setScanned(false);
     setScanning(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setScanData({});
   };
 
   if (hasPermission === null) {
@@ -45,10 +59,41 @@ const CameraScreen = () => {
         <View style={styles.border} />
         <Button
           title={'Escanear Codigo QR'}
-          onPress={startScan} // Iniciar el escaneo al presionar el botón
+          onPress={startScan}
           color="#39A900"
         />
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Detalles del Objeto</Text>
+            {scanData.error ? (
+              <Text>{scanData.error}</Text>
+            ) : (
+              <>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Serial:</Text> {scanData.ser_obj}</Text>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Marca:</Text> {scanData.marc_obj}</Text>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Tipo:</Text> {scanData.tip_obj}</Text>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Estado:</Text> {scanData.est_obj}</Text>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Valor:</Text> {scanData.val_obj}</Text>
+                <Text style={styles.modalInfo}><Text style={styles.modalTitle}>Observaciones:</Text> {scanData.obser_obj}</Text>
+              </>
+            )}
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={closeModal}
+            >
+              <Text style={styles.textStyle}>Cerrar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -83,6 +128,49 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderColor: '#39A900',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    minWidth: 300,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 20,
+  },
+  buttonClose: {
+    backgroundColor: '#39A900',
+    alignSelf: 'center',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalTitle: {
+    marginBottom: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 20,
   },
 });
 

@@ -1,11 +1,30 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const HomeScreen = () => {
   const [mostrarBarra, setMostrarBarra] = useState(false);
+  const [userName, setUserName] = useState('');
   const slideAnimation = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          setUserName(user.nom_fun); // Ajusta esto según el nombre del campo en tu respuesta
+        }
+      } catch (error) {
+        console.error('Error al obtener los datos del usuario:', error);
+      }
+    };
+
+    getUserData();
+  }, []);
 
   const btnBars = () => {
     setMostrarBarra(!mostrarBarra);
@@ -16,35 +35,38 @@ const HomeScreen = () => {
     }).start();
   };
 
-  const navigation = useNavigation();
   const navigateToCamera = () => {
     navigation.navigate('Camera');
   };
-  
+
   const navigateToSetting = () => {
     navigation.navigate('Setting');
   };
+
   const navigateToUser = () => {
     navigation.navigate('User');
   };
+
   const navigateAmbien = () => {
     navigation.navigate('AmbienteScrenn');
   };
+
   const navigateReport = () => {
     navigation.navigate('ReportScreen');
   };
+
   const navigateCateg = () => {
     navigation.navigate('CategoriaScrenn');
   };
-  return (
 
+  return (
     <View style={styles.container}>
       <View style={styles.encabezado}>
         <View style={styles.containerInfo}>
           <TouchableOpacity onPress={btnBars}>
             <FontAwesomeIcon name="bars" size={25} style={styles.imgInfo} />
           </TouchableOpacity>
-          <Text style={styles.namUser}>Jairo de Avila</Text>
+          <Text style={styles.namUser}>¡Hola {userName}!</Text>
           <TouchableOpacity onPress={navigateToSetting}>
             <FontAwesomeIcon name="gear" size={25} style={styles.imgInfo} />
           </TouchableOpacity>
@@ -91,9 +113,6 @@ const HomeScreen = () => {
           <FontAwesomeIcon style={styles.Cam} name="camera" size={60} />
         </TouchableOpacity>
       </View>
-
-
-
     </View>
   );
 };
@@ -130,7 +149,6 @@ const styles = StyleSheet.create({
     top: -30,
     alignItems: 'center',
   },
-
   fondoPerf: {
     backgroundColor: '#ECECEC',
     borderRadius: 100,
@@ -139,7 +157,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   Perf: {
     backgroundColor: '#39A900',
     width: 60,
@@ -176,7 +193,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
   },
-
   Cam: {
     color: 'white',
   },

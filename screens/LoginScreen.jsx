@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,15 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setEmail('');
+      setPassword('');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleLogin = async () => {
     try {
@@ -23,21 +32,24 @@ const LoginScreen = () => {
           password: password,
         }),
       });
-
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         const token = data.token;
-        await AsyncStorage.setItem('token',token);
-        // Si la respuesta es exitosa, redirige al usuario a la pantalla de inicio
+        await AsyncStorage.setItem('token', token);
+        
+        if (data.user) { 
+          await AsyncStorage.setItem('user', JSON.stringify(data.user));
+        } else {
+          console.warn('User data is missing in the response');
+        }
+  
         navigation.navigate('Home');
       } else {
-        // Si hay un error en la respuesta, muestra un mensaje de error
         setErrorMessage(data.message || 'Ocurrió un error durante el inicio de sesión.');
       }
     } catch (error) {
-      // Si hay un error en la solicitud, muestra un mensaje de error
       console.error('Error de red:', error);
       setErrorMessage('Ocurrió un error de red. Por favor, intenta nuevamente.');
     }

@@ -47,8 +47,8 @@ const RegisterScreen = () => {
     }
   };
 
-  const navigateToHome = () => {
-    navigation.navigate('Home');
+  const navigateToLogin = () => {
+    navigation.navigate('Login');
   };
 
   const enviarDatos = async () => {
@@ -138,7 +138,7 @@ const RegisterScreen = () => {
         />
         <Button title="Listo" onPress={enviarDatos} color={'#39A900'} />
       </ScrollView>
-      <TouchableOpacity onPress={navigateToHome}>
+      <TouchableOpacity onPress={navigateToLogin}>
         <Text style={styles.registerLink}>Iniciar Sesión</Text>
       </TouchableOpacity>
     </View>
