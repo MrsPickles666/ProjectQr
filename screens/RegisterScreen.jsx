@@ -8,7 +8,7 @@ import { Picker } from '@react-native-picker/picker';
 const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [documentType, setDocumentType] = useState(''); // Cambiado el estado para almacenar el tipo de documento
+  const [documentType, setDocumentType] = useState('');
   const [documentNumber, setDocumentNumber] = useState('');
   const [position, setPosition] = useState('');
   const [email, setEmail] = useState('');
@@ -40,8 +40,8 @@ const RegisterScreen = () => {
     try {
       const response = await fetch('http://192.168.81.71:3000/roles/all');
       const data = await response.json();
-      let valor = data.data
-      setRoles(valor)
+      let valor = data.data;
+      setRoles(valor);
     } catch (error) {
       console.log('Error al obtener los roles:', error);
     }
@@ -66,12 +66,11 @@ const RegisterScreen = () => {
     try {
       await crearUsu(formData, token);
       setMensaje('El usuario se registró correctamente');
-      handleSubmit();
     } catch (error) {
       console.log('Error al enviar los datos del usuario', error);
       setMensaje('Error al agregar al usuario. Inténtalo de nuevo.');
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -92,8 +91,8 @@ const RegisterScreen = () => {
 
         <Picker
           style={styles.input}
-          selectedValue={documentType} // Usamos documentType para el valor seleccionado
-          onValueChange={(itemValue) => setDocumentType(itemValue)} // Actualizamos documentType
+          selectedValue={documentType}
+          onValueChange={(itemValue) => setDocumentType(itemValue)}
         >
           <Picker.Item label="Tipo de Documento" value="" />
           <Picker.Item label="CC" value="CC" />
@@ -112,7 +111,7 @@ const RegisterScreen = () => {
           onValueChange={(itemValue) => setRole(itemValue)}
           style={styles.input}>
           {roles.map((role) => {
-            return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />
+            return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />;
           })}
         </Picker>
 
