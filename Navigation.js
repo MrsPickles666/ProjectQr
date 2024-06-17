@@ -2,10 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, SafeAreaView } from 'react-native';
-
+import AppStateManager from './AppStateManager';
 
 import HomeScreen from './screens/HomeScreen';
-import Settingcreen from './screens/SettingScreen';
+import SettingScreen from './screens/SettingScreen';
 import ComponentPantallas from './components/ComponentPantallas';
 import UserScreen from './screens/UserScreen';
 import CalificanosScreen from './screens/CalificanosScrenn';
@@ -32,7 +32,6 @@ import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
 import CameraScreen from './components/Camera';
 
-
 const Stack = createStackNavigator();
 
 const forNoAnimation = ({ current }) => ({
@@ -45,7 +44,8 @@ const Navigation = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor="#39A900" />
-        <NavigationContainer>
+      <NavigationContainer>
+        <AppStateManager>
           <Stack.Navigator
             screenOptions={{
               headerShown: false,
@@ -53,15 +53,9 @@ const Navigation = () => {
             }}
             initialRouteName="Login"
           >
-            <Stack.Screen name="otra" component={OtraPantalla} />
-            <Stack.Screen name="Camera" component={CameraScreen} />
-            <Stack.Screen name="Token" component={VerToken} />
-            <Stack.Screen name="Setting" component={Settingcreen} />
-            <Stack.Screen name="Details" component={DetailScreen} />
-            <Stack.Screen name="InventarioScreen" component={InventarioScreen} />
-            <Stack.Screen name="RegisterInventario" component={RegisterInventario} />
+            <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="componente" component={ComponentPantallas} />
+            <Stack.Screen name="Setting" component={SettingScreen} />
             <Stack.Screen name="User" component={UserScreen} />
             <Stack.Screen name="Calificanos" component={CalificanosScreen} />
             <Stack.Screen name="Novedad" component={NovedadScreen} />
@@ -79,9 +73,15 @@ const Navigation = () => {
             <Stack.Screen name="RegisterAmbie" component={RegisterAmbie} />
             <Stack.Screen name="RegisterCatego" component={RegisterCatego} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Camera" component={CameraScreen} />
+            <Stack.Screen name="Token" component={VerToken} />
+            <Stack.Screen name="otra" component={OtraPantalla} />
+            <Stack.Screen name="RegisterInventario" component={RegisterInventario} />
+            <Stack.Screen name="Details" component={DetailScreen} />
+            <Stack.Screen name="componente" component={ComponentPantallas} />
           </Stack.Navigator>
-        </NavigationContainer>
+        </AppStateManager>
+      </NavigationContainer>
     </SafeAreaView>
   );
 };

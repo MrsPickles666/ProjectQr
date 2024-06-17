@@ -19,18 +19,40 @@ const CameraScreen = () => {
   const handleBarCodeScanned = ({ type, data }) => {
     if (scanning) {
       setScanned(true);
-      try {
-        const parsedData = JSON.parse(data);
-        setScanData(parsedData);
-      } catch (error) {
-        console.error('Error parsing scanned data:', error);
-        setScanData({ error: 'Error parsing data' });
+      // Verificar si los datos son JSON válido
+      if (isValidJson(data)) {
+        try {
+          const parsedData = JSON.parse(data);
+          // Verificar si los datos cumplen con el formato esperado
+          if (isValidData(parsedData)) {
+            setScanData(parsedData);
+            setModalVisible(true);
+          } else {
+            setScanData({ error: 'Datos no válidos' });
+            setModalVisible(true);
+          }
+        } catch (error) {
+          console.error('Error parsing scanned data:', error);
+          setScanData({ error: 'Error parsing data' });
+          setModalVisible(true);
+        }
+      } else {
+        setScanData({ error: 'Qr no valido' });
+        setModalVisible(true);
       }
-      setModalVisible(true);
       setScanning(false);
     }
   };
-
+  
+  const isValidJson = (data) => {
+    try {
+      JSON.parse(data);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+  
   const startScan = () => {
     setScanned(false);
     setScanning(true);
@@ -127,7 +149,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     marginBottom: 20,
     borderColor: '#39A900',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'transparent',
   },
   centeredView: {
     flex: 1,
@@ -171,6 +193,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 20,
+  },
+  modalInfo: {
+    marginBottom: 10,
   },
 });
 
