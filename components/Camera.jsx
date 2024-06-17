@@ -19,40 +19,44 @@ const CameraScreen = () => {
   const handleBarCodeScanned = ({ type, data }) => {
     if (scanning) {
       setScanned(true);
-      // Verificar si los datos son JSON válido
-      if (isValidJson(data)) {
+      // Verificar si los datos cumplen con el formato esperado
+      if (isValidData(data)) {
         try {
           const parsedData = JSON.parse(data);
-          // Verificar si los datos cumplen con el formato esperado
-          if (isValidData(parsedData)) {
-            setScanData(parsedData);
-            setModalVisible(true);
-          } else {
-            setScanData({ error: 'Datos no válidos' });
-            setModalVisible(true);
-          }
+          setScanData(parsedData);
+          setModalVisible(true);
         } catch (error) {
           console.error('Error parsing scanned data:', error);
           setScanData({ error: 'Error parsing data' });
           setModalVisible(true);
         }
       } else {
-        setScanData({ error: 'Qr no valido' });
+        setScanData({ error: 'Código no válido' });
         setModalVisible(true);
       }
       setScanning(false);
     }
   };
-  
-  const isValidJson = (data) => {
+
+  const isValidData = (data) => {
+    // Aquí puedes implementar la lógica para validar los datos escaneados
+    // Supongamos que esperas que el objeto tenga ciertos campos específicos
     try {
-      JSON.parse(data);
-      return true;
+      const parsedData = JSON.parse(data);
+      return (
+        parsedData.hasOwnProperty('ser_obj') &&
+        parsedData.hasOwnProperty('marc_obj') &&
+        parsedData.hasOwnProperty('tip_obj') &&
+        parsedData.hasOwnProperty('est_obj') &&
+        parsedData.hasOwnProperty('val_obj') &&
+        parsedData.hasOwnProperty('obser_obj')
+      );
     } catch (error) {
+      console.error('Error parsing scanned data:', error);
       return false;
     }
   };
-  
+
   const startScan = () => {
     setScanned(false);
     setScanning(true);
@@ -149,7 +153,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     marginBottom: 20,
     borderColor: '#39A900',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   centeredView: {
     flex: 1,

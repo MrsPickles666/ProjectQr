@@ -38,7 +38,7 @@ const RegisterScreen = () => {
 
   const obtenerRoles = async () => {
     try {
-      const response = await fetch('http://192.168.81.71:3000/roles/all');
+      const response = await fetch('http://192.168.81.146:3000/roles/all');
       const data = await response.json();
       let valor = data.data;
       setRoles(valor);

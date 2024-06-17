@@ -96,7 +96,7 @@ const UserScreen = () => {
         throw new Error('Token not found. Please log in again.');
       }
 
-      const response = await fetch(`http://192.168.81.71:3000/usuario/${parseInt(userData.num_doc)}`, {
+      const response = await fetch(`http://192.168.81.146:3000/usuario/${parseInt(userData.num_doc)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

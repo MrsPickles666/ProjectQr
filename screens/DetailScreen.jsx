@@ -26,7 +26,7 @@ const DetailScreen = () => {
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.81.71:3000/objeto/all');
+                const response = await fetch('http://192.168.81.146:3000/objeto/all');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -66,7 +66,7 @@ const DetailScreen = () => {
 
     const showViewModal = async (objeto) => {
         try {
-            const response = await fetch(`http://192.168.81.71:3000/objeto/${objeto.id_obj}`);
+            const response = await fetch(`http://192.168.81.146:3000/objeto/${objeto.id_obj}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -108,7 +108,7 @@ const DetailScreen = () => {
 
     const updateObjeto = async () => {
         try {
-            const response = await fetch(`http://192.168.81.71:3000/objeto/${selectedObjeto.id_obj}/update`, {
+            const response = await fetch(`http://192.168.81.146:3000/objeto/${selectedObjeto.id_obj}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
