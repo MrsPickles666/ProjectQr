@@ -16,43 +16,38 @@ const CameraScreen = () => {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     if (scanning) {
       setScanned(true);
-      // Verificar si los datos cumplen con el formato esperado
-      if (isValidData(data)) {
-        try {
-          const parsedData = JSON.parse(data);
-          setScanData(parsedData);
-          setModalVisible(true);
-        } catch (error) {
-          console.error('Error parsing scanned data:', error);
-          setScanData({ error: 'Error parsing data' });
-          setModalVisible(true);
+      if (isValidJson(data)) {
+        const parsedData = JSON.parse(data);
+        if (parsedData.id_obj) {
+          try {
+            const response = await fetch(`http://192.168.81.71:3000/objeto/${parsedData.id_obj}`);
+            if (!response.ok) {
+              throw new Error('Failed to fetch data');
+            }
+            const fetchedData = await response.json();
+            setScanData(fetchedData);
+          } catch (error) {
+            setScanData({ error: 'Error al obtener detalles del objeto' });
+          }
+        } else {
+          setScanData({ error: 'Código no válido' });
         }
       } else {
         setScanData({ error: 'Código no válido' });
-        setModalVisible(true);
       }
       setScanning(false);
+      setModalVisible(true);
     }
   };
 
-  const isValidData = (data) => {
-    // Aquí puedes implementar la lógica para validar los datos escaneados
-    // Supongamos que esperas que el objeto tenga ciertos campos específicos
+  const isValidJson = (data) => {
     try {
-      const parsedData = JSON.parse(data);
-      return (
-        parsedData.hasOwnProperty('ser_obj') &&
-        parsedData.hasOwnProperty('marc_obj') &&
-        parsedData.hasOwnProperty('tip_obj') &&
-        parsedData.hasOwnProperty('est_obj') &&
-        parsedData.hasOwnProperty('val_obj') &&
-        parsedData.hasOwnProperty('obser_obj')
-      );
+      JSON.parse(data);
+      return true;
     } catch (error) {
-      console.error('Error parsing scanned data:', error);
       return false;
     }
   };

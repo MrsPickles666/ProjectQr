@@ -54,7 +54,11 @@ const Navigation = () => {
             initialRouteName="Login"
           >
             <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ gestureEnabled: false }}
+            />            
             <Stack.Screen name="Setting" component={SettingScreen} />
             <Stack.Screen name="User" component={UserScreen} />
             <Stack.Screen name="Calificanos" component={CalificanosScreen} />

@@ -46,7 +46,7 @@ const AmbienteScreen = () => {
 
     const updateAmbiente = async () => {
         try {
-            const response = await fetch(`http://192.168.81.146:3000/ambiente/${selectedAmbiente.id_amb}/update`, {
+            const response = await fetch(`http://192.168.81.71:3000/ambiente/${selectedAmbiente.id_amb}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const AmbienteScreen = () => {
     useEffect(() => {
         const fetchAmbientes = async () => {
             try {
-                const response = await fetch('http://192.168.81.146:3000/ambiente/all');
+                const response = await fetch('http://192.168.81.71:3000/ambiente/all');
                 const data = await response.json();
                 setAmbientes(data.data);
                 setFilteredAmbientes(data.data);
@@ -89,7 +89,7 @@ const AmbienteScreen = () => {
 
         const fetchCentros = async () => {
             try {
-                const response = await fetch('http://192.168.81.146:3000/centro/all');
+                const response = await fetch('http://192.168.81.71:3000/centro/all');
                 const data = await response.json();
                 setCentros(data.data);
             } catch (error) {

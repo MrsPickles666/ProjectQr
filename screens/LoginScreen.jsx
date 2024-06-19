@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity, BackHandler, Alert, Modal, Pressable } from 'react-native';
+import { useNavigation, StackActions, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
@@ -9,6 +9,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -20,9 +21,33 @@ const LoginScreen = () => {
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('¡Espera!', '¿Estás seguro que quieres salir de la aplicación?', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+          style: 'cancel'
+        },
+        { text: 'Sí', onPress: () => BackHandler.exitApp() }
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, []);
+
   const handleLogin = async () => {
+    if (!email || !password) {
+      setErrorMessage('Por favor, ingrese correo/contraseña.');
+      setModalVisible(true);
+      return;
+    }
+
     try {
-      const response = await fetch('http://192.168.81.146:3000/usuario/login', {
+      const response = await fetch('http://192.168.81.71:3000/usuario/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,18 +70,25 @@ const LoginScreen = () => {
           console.warn('User data is missing in the response');
         }
 
-        navigation.navigate('Home');
+        const resetAction = StackActions.replace('Home');
+        navigation.dispatch(resetAction);
       } else {
         setErrorMessage(data.message || 'Ocurrió un error durante el inicio de sesión.');
+        setModalVisible(true);
       }
     } catch (error) {
       console.error('Error de red:', error);
       setErrorMessage('Ocurrió un error de red. Por favor, intenta nuevamente.');
+      setModalVisible(true);
     }
   };
 
   const handleRegisterLink = () => {
     navigation.navigate('Register');
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
   };
 
   return (
@@ -78,11 +110,27 @@ const LoginScreen = () => {
         secureTextEntry
         autoCapitalize="none"
       />
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       <TouchableOpacity onPress={handleRegisterLink}>
         <Text style={styles.registerLink}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
       <Button title="Iniciar Sesión" onPress={handleLogin} color="#39A900" />
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Error</Text>
+            <Text style={styles.modalMessage}>{errorMessage}</Text>
+            <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>Cerrar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -117,6 +165,45 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#39A900',
     textAlign: 'center',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 10,
+    width: '40%',
+    alignItems: 'center',
+  },
+  modalButtonClose: {
+    backgroundColor: 'gray',
+  },
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

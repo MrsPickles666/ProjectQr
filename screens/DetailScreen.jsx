@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Image, Pressable } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Image, Pressable, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Permissions from 'expo-permissions';
 
 const DetailScreen = () => {
     const [objetos, setObjetos] = useState([]);
@@ -26,7 +29,7 @@ const DetailScreen = () => {
     useEffect(() => {
         const fetchObjetos = async () => {
             try {
-                const response = await fetch('http://192.168.81.146:3000/objeto/all');
+                const response = await fetch('http://192.168.81.71:3000/objeto/all');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -66,7 +69,7 @@ const DetailScreen = () => {
 
     const showViewModal = async (objeto) => {
         try {
-            const response = await fetch(`http://192.168.81.146:3000/objeto/${objeto.id_obj}`);
+            const response = await fetch(`http://192.168.81.71:3000/objeto/${objeto.id_obj}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch data');
             }
@@ -108,7 +111,7 @@ const DetailScreen = () => {
 
     const updateObjeto = async () => {
         try {
-            const response = await fetch(`http://192.168.81.146:3000/objeto/${selectedObjeto.id_obj}/update`, {
+            const response = await fetch(`http://192.168.81.71:3000/objeto/${selectedObjeto.id_obj}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -144,6 +147,38 @@ const DetailScreen = () => {
             }
         } catch (error) {
             console.error('Error:', error);
+        }
+    };
+
+    const downloadImage = async () => {
+        try {
+            if (Platform.OS !== 'web') {
+                // Pedir permisos para acceder a la librería de medios
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Permission to access media library is required!');
+                    return;
+                }
+            }
+
+            // Convertir la imagen base64 a un archivo en el sistema de archivos
+            const base64Data = selectedObjeto.qrimagen.replace(/^data:image\/(png|jpeg);base64,/, '');
+            const filename = `${selectedObjeto.ser_obj}_SAFTS.png`;
+            const dir = FileSystem.documentDirectory + filename;
+            await FileSystem.writeAsStringAsync(dir, base64Data, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            // Guardar la imagen en la librería de medios
+            if (Platform.OS !== 'web') {
+                const asset = await MediaLibrary.createAssetAsync(dir);
+                await MediaLibrary.createAlbumAsync('Download', asset, false);
+            }
+
+            alert('Image downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            alert('Failed to download image');
         }
     };
 
@@ -211,6 +246,12 @@ const DetailScreen = () => {
                                         style={styles.qrCodeImage}
                                         source={{ uri: `data:image/png;base64,${selectedObjeto.qrimagen}` }}
                                     />
+                                    <TouchableOpacity
+                                        style={[styles.button, styles.buttonDownload]}
+                                        onPress={downloadImage}
+                                    >
+                                        <Text style={styles.textStyle}>Descargar Qr</Text>
+                                    </TouchableOpacity>
                                 </>
                             )}
                             <Pressable style={[styles.button, styles.buttonClose]} onPress={closeViewModal}>
@@ -400,8 +441,8 @@ const styles = StyleSheet.create({
         textAlign: 'left',
     },
     qrCodeImage: {
-        width: 300,
-        height: 300,
+        width: 250,
+        height: 250,
         marginTop: 0,
         marginBottom: 10,
         resizeMode: 'contain',
@@ -417,6 +458,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 10,
     },
+
+    buttonDownload: {
+        backgroundColor: '#39A900',
+        padding: 10,
+        borderRadius: 10,
+        marginTop: 10,
+    },
+
 });
 
 export default DetailScreen;

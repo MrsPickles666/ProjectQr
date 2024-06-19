@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native'; // useFocusEffect instead of useRoute
+import { View, Text, TouchableOpacity, StyleSheet, Animated, BackHandler } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
@@ -10,7 +10,6 @@ const HomeScreen = () => {
   const slideAnimation = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
 
-  // Este efecto se ejecutará cada vez que la pantalla obtenga enfoque
   useFocusEffect(
     React.useCallback(() => {
       const getUserData = async () => {
@@ -26,6 +25,16 @@ const HomeScreen = () => {
       };
 
       getUserData();
+
+      const onBackPress = () => {
+        return true; // Esto previene que la app se cierre al presionar el botón de retroceso
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
     }, [])
   );
 

@@ -16,10 +16,10 @@ const RegisterScreen = () => {
   const [telefono, setTelefono] = useState('');
   const [token, setToken] = useState('');
   const [mensaje, setMensaje] = useState('');
-  
+
   const [role, setRole] = useState('');
   const [roles, setRoles] = useState([]);
-  
+
   const navigation = useNavigation('');
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const RegisterScreen = () => {
 
   const obtenerRoles = async () => {
     try {
-      const response = await fetch('http://192.168.81.146:3000/roles/all');
+      const response = await fetch('http://192.168.81.71:3000/roles/all');
       const data = await response.json();
       let valor = data.data;
       setRoles(valor);
@@ -135,11 +135,11 @@ const RegisterScreen = () => {
           onChangeText={setPassword}
           value={password}
         />
+        <TouchableOpacity onPress={navigateToLogin}>
+          <Text style={styles.registerLink}>¿Ya tienes cuenta? Inicia sesión</Text>
+        </TouchableOpacity>
         <Button title="Listo" onPress={enviarDatos} color={'#39A900'} />
       </ScrollView>
-      <TouchableOpacity onPress={navigateToLogin}>
-        <Text style={styles.registerLink}>Iniciar Sesión</Text>
-      </TouchableOpacity>
     </View>
   );
 };
