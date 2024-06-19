@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Modal, Image, Pressable, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -19,43 +19,72 @@ const DetailScreen = () => {
     const [editTipo, setEditTipo] = useState('');
     const [editEstado, setEditEstado] = useState('');
     const [editValor, setEditValor] = useState('');
+    const [successModalVisible, setSuccessModalVisible] = useState(false);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [editObservaciones, setEditObservaciones] = useState('');
     const navigation = useNavigation();
+    const route = useRoute();
+    const { ambienteId } = route.params;
+    const [objetosAmbiente, setObjetosAmbiente] = useState([]);
+const [objetosTodos, setObjetosTodos] = useState([]);
 
     const navigateToCrear = () => {
         navigation.navigate('RegisterObjets');
     }
 
     useEffect(() => {
-        const fetchObjetos = async () => {
+        const fetchObjetosAmbiente = async () => {
             try {
-                const response = await fetch('http://192.168.81.71:3000/objeto/all');
+                const response = await fetch(`http://192.168.81.71:3000/objeto/byAmbiente/${ambienteId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
                 const data = await response.json();
-                setObjetos(data);
-                setFilteredObjetos(data);
+                setObjetosAmbiente(data);
+                setFilteredObjetos(data); // Actualizar también los objetos filtrados
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
+    
+        fetchObjetosAmbiente();
+    }, [ambienteId]);
+    
 
-        fetchObjetos();
+
+    useEffect(() => {
+        const fetchObjetosTodos = async () => {
+            try {
+                const response = await fetch('http://192.168.81.71:3000/objeto/all');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                setObjetosTodos(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchObjetosTodos();
     }, []);
+    
 
     useEffect(() => {
         if (searchQuery === '') {
-            setFilteredObjetos(objetos);
+            setFilteredObjetos(objetosAmbiente);
         } else {
-            const filteredData = objetos.filter(objeto =>
+            const filteredData = objetosAmbiente.filter(objeto =>
                 objeto.marc_obj.toLowerCase().includes(searchQuery.toLowerCase())
             );
             setFilteredObjetos(filteredData);
         }
-    }, [searchQuery, objetos]);
+    }, [searchQuery, objetosAmbiente]);
+    
 
     const arrayBufferToBase64 = (buffer) => {
         let binary = '';
@@ -150,15 +179,18 @@ const DetailScreen = () => {
         }
     };
 
+    const handleDownloadConfirmation = () => {
+        setConfirmModalVisible(false);  // Cerrar el modal de confirmación
+        downloadImage();  // Llamar a la función para descargar la imagen
+    };
+
     const downloadImage = async () => {
         try {
-            if (Platform.OS !== 'web') {
-                // Pedir permisos para acceder a la librería de medios
-                const { status } = await MediaLibrary.requestPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Permission to access media library is required!');
-                    return;
-                }
+            // Pedir permisos para acceder a la librería de medios
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Permiso para acceder a la librería de medios es necesario para descargar la imagen.');
+                return;  // Salir de la función si los permisos no son otorgados
             }
 
             // Convertir la imagen base64 a un archivo en el sistema de archivos
@@ -170,17 +202,29 @@ const DetailScreen = () => {
             });
 
             // Guardar la imagen en la librería de medios
-            if (Platform.OS !== 'web') {
-                const asset = await MediaLibrary.createAssetAsync(dir);
-                await MediaLibrary.createAlbumAsync('Download', asset, false);
-            }
+            const asset = await MediaLibrary.createAssetAsync(dir);
 
-            alert('Image downloaded successfully!');
+            setSuccessModalVisible(true);  // Mostrar el modal de éxito
         } catch (error) {
-            console.error('Error downloading image:', error);
-            alert('Failed to download image');
+            // Manejar error de manera silenciosa si se debe a permisos denegados
+            if (error.message.includes("User didn't grant write permission to requested files.")) {
+                console.log('El usuario denegó los permisos, no se descargó la imagen.');
+                alert('El usuario denegó los permisos, no se descargó la imagen.');
+            } else {
+                console.error('Error al descargar la imagen:', error);
+                alert('Error al descargar la imagen.');
+            }
         }
     };
+
+    const closeSuccessModal = () => {
+        setSuccessModalVisible(false);
+    };
+
+
+
+
+
 
     return (
         <View style={styles.container}>
@@ -231,6 +275,8 @@ const DetailScreen = () => {
                     onRequestClose={closeViewModal}
                 >
                     <View style={styles.centeredView}>
+                        <Text>{`Objetos del ambiente ${ambienteId}`}</Text>
+
                         <View style={styles.modalView}>
                             <Text style={styles.modalTitle}>Detalles del Objeto</Text>
                             <Text><Text style={styles.modalTitle}>Serial:</Text> {selectedObjeto.ser_obj}</Text>
@@ -246,11 +292,8 @@ const DetailScreen = () => {
                                         style={styles.qrCodeImage}
                                         source={{ uri: `data:image/png;base64,${selectedObjeto.qrimagen}` }}
                                     />
-                                    <TouchableOpacity
-                                        style={[styles.button, styles.buttonDownload]}
-                                        onPress={downloadImage}
-                                    >
-                                        <Text style={styles.textStyle}>Descargar Qr</Text>
+                                    <TouchableOpacity onPress={() => setConfirmModalVisible(true)}>
+                                        <Text style={styles.textQrDow}>Descargar QR</Text>
                                     </TouchableOpacity>
                                 </>
                             )}
@@ -324,6 +367,38 @@ const DetailScreen = () => {
                     </View>
                 </Modal>
             )}
+
+            <Modal visible={confirmModalVisible} animationType="slide" transparent={true}>
+                <View style={styles.confirmModalContainer}>
+                    <View style={styles.confirmModalContent}>
+                        <Text style={styles.modalTitle}>¿Desea descargar el QR?</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
+                            <TouchableOpacity style={styles.confirmButton} onPress={handleDownloadConfirmation}>
+                                <Text style={styles.confirmButtonText}>Sí</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.cancelButton} onPress={() => setConfirmModalVisible(false)}>
+                                <Text style={styles.cancelButtonText}>No</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={successModalVisible} animationType="slide" transparent={true}>
+                <View style={styles.confirmModalContainer}>
+                    <View style={styles.confirmModalContent}>
+                        <Text style={styles.modalTitle}>Imagen descargada exitosamente!</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
+                            <TouchableOpacity style={styles.BtonMenss} onPress={closeSuccessModal}>
+                                <Text style={styles.confirmButtonText}>Cerrar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+
+
         </View>
     );
 };
@@ -466,6 +541,87 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
 
+    confirmModalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    confirmModalContent: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalLabel: {
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    confirmButton: {
+        backgroundColor: '#39A900',
+        paddingVertical: 10,
+        paddingHorizontal: 23,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    confirmButtonText: {
+        color: 'white',
+        fontSize: 18,
+        textAlign: 'center',
+    },
+    cancelButton: {
+        backgroundColor: 'gray',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    cancelButtonText: {
+        color: 'white',
+        fontSize: 18,
+        textAlign: 'center',
+    },
+    confirmModalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    confirmModalContent: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 20,
+        alignItems: 'center',
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    BtonMenss: {
+        backgroundColor: '#39A900',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+
+
+    textQrDow: {
+        color: '#39A900',
+        fontSize: 18,
+        marginBottom: 20,
+        textDecorationLine: 'underline',
+    },
 });
 
 export default DetailScreen;

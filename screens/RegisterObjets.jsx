@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -16,13 +16,15 @@ const RegisterObjets = () => {
     const [marca, setMarca] = useState('');
     const [valor, setValor] = useState('');
     const [token, setToken] = useState('');
-    const [mensaje, setMensaje] = useState('');
 
     const [categorias, setCategorias] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
 
     const [ambientes, setAmbientes] = useState([]);
     const [selectedAmbiente, setSelectedAmbiente] = useState('');
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [mensaje, setMensaje] = useState('');
 
     const navigation = useNavigation();
 
@@ -89,24 +91,28 @@ const RegisterObjets = () => {
             val_obj: parseFloat(valor),
             fech_adqui: date.toISOString().split('T')[0],
         };
-        console.log(formData);
         try {
             await crearObj(formData, token);
             setMensaje('El objeto se registró correctamente');
+            setModalVisible(true); // Abrir el modal al registrar correctamente
         } catch (error) {
             console.log('Error al enviar los datos del objeto', error);
             setMensaje('Error al agregar el objeto. Inténtalo de nuevo.');
+            setModalVisible(true); // Abrir el modal al ocurrir un error
         }
     };
 
     const handleCategoryChange = (itemValue) => {
-        console.log('Selected Category:', itemValue);
         setSelectedCategory(itemValue);
     };
 
     const handleAmbienteChange = (itemValue) => {
-        console.log('Selected Ambiente:', itemValue);
         setSelectedAmbiente(itemValue);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        setMensaje('');
     };
 
     return (
@@ -121,20 +127,16 @@ const RegisterObjets = () => {
                     value={serial}
                 />
 
-
-
                 <Picker
                     selectedValue={selectedAmbiente}
                     onValueChange={handleAmbienteChange}
                     style={styles.input}>
                     <Picker.Item label="Seleccione un Ambiente" value="" />
                     {ambientes.map((ambiente) => (
-
                         <Picker.Item key={ambiente.amb_id} label={ambiente.nom_amb} value={ambiente.id_amb} />
                     ))}
                 </Picker>
 
-                
                 <TextInput
                     style={styles.input}
                     placeholder="Observación"
@@ -195,8 +197,24 @@ const RegisterObjets = () => {
                     />
                 )}
                 <Button title="Registrar" onPress={enviarDatos} color={'#39A900'} />
-                {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
             </ScrollView>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalBackground}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalMessage}>{mensaje}</Text>
+                        <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModal}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
             <TouchableOpacity onPress={navigateToHome}>
                 <Text style={styles.registerLink}>Volver al inicio</Text>
             </TouchableOpacity>
@@ -248,15 +266,44 @@ const styles = StyleSheet.create({
         color: '#39A900',
         textDecorationLine: 'underline',
     },
-    mensaje: {
-        textAlign: 'center',
-        color: 'green',
-        marginTop: 16,
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
-    debugText: {
+    modalContainer: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 20,
+        width: '80%',
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 20,
         textAlign: 'center',
-        color: 'blue',
-        marginTop: 16,
+    },
+    modalMessage: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    modalButton: {
+        padding: 10,
+        borderRadius: 10,
+        width: '40%',
+        alignItems: 'center',
+    },
+    modalButtonClose: {
+        backgroundColor: 'gray',
+    },
+    modalButtonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 

@@ -26,7 +26,7 @@ const AppStateManager = ({ children }) => {
               ],
               { cancelable: false }
             );
-          }, 300000);
+          }, 5000);
         }
       }
       appState.current = nextAppState;
