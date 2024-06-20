@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity, BackHandler, Alert, Modal, Pressable } from 'react-native';
-import { useNavigation, StackActions, CommonActions } from '@react-navigation/native';
+import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity, BackHandler, Modal, Pressable } from 'react-native';
+import { useNavigation, StackActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
@@ -10,27 +10,23 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [exitModalVisible, setExitModalVisible] = useState(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setEmail('');
       setPassword('');
       setErrorMessage('');
+      setExitModalVisible(false); // Asegurarse de que el modal no esté visible al volver a entrar
     });
-
+  
     return unsubscribe;
   }, [navigation]);
+  
 
   useEffect(() => {
     const backAction = () => {
-      Alert.alert('¡Espera!', '¿Estás seguro que quieres salir de la aplicación?', [
-        {
-          text: 'Cancelar',
-          onPress: () => null,
-          style: 'cancel'
-        },
-        { text: 'Sí', onPress: () => BackHandler.exitApp() }
-      ]);
+      setExitModalVisible(true);
       return true;
     };
 
@@ -91,6 +87,16 @@ const LoginScreen = () => {
     setModalVisible(false);
   };
 
+  const closeExitModal = () => {
+    setExitModalVisible(false);
+  };
+
+  const confirmExitApp = () => {
+    setExitModalVisible(false); // Cerrar el modal antes de salir
+    BackHandler.exitApp();
+  };
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inicio De Sesión</Text>
@@ -128,6 +134,28 @@ const LoginScreen = () => {
             <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModal}>
               <Text style={styles.modalButtonText}>Cerrar</Text>
             </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={exitModalVisible}
+        onRequestClose={closeExitModal}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>¡Espera!</Text>
+            <Text style={styles.modalMessage}>¿Estás seguro que quieres salir de la aplicación?</Text>
+            <View style={styles.modalButtons}>
+              <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeExitModal}>
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </Pressable>
+              <Pressable style={[styles.modalButton, styles.modalButtonConfirm]} onPress={confirmExitApp}>
+                <Text style={styles.modalButtonText}>Salir</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -190,6 +218,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
   modalButton: {
     padding: 10,
     borderRadius: 10,
@@ -198,6 +231,9 @@ const styles = StyleSheet.create({
   },
   modalButtonClose: {
     backgroundColor: 'gray',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#39A900',
   },
   modalButtonText: {
     color: 'white',

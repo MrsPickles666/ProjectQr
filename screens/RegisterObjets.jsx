@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Button, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import crearObj from '../api/objs';
 
 const RegisterObjets = () => {
     const [date, setDate] = useState(new Date());
-    const [show, setShow] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [serial, setSerial] = useState('');
     const [estado, setEstado] = useState('');
     const [observacion, setObservacion] = useState('');
@@ -23,10 +24,18 @@ const RegisterObjets = () => {
     const [ambientes, setAmbientes] = useState([]);
     const [selectedAmbiente, setSelectedAmbiente] = useState('');
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [mensaje, setMensaje] = useState('');
+    const [modalVisibleSuccess, setModalVisibleSuccess] = useState(false);
+    const [modalVisibleError, setModalVisibleError] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
 
     const navigation = useNavigation();
+
+    const RegisterAmbie = () => {
+        navigation.navigate('RegisterObjets', {
+            refresh: true, // Indicar que se debe refrescar la pantalla al regresar
+        });
+    };
+    
 
     useEffect(() => {
         const obtenerToken = async () => {
@@ -65,21 +74,25 @@ const RegisterObjets = () => {
         fetchAmbientes();
     }, []);
 
-    const navigateToHome = () => {
-        navigation.navigate('Home');
-    };
-
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
         setDate(currentDate);
-        setShow(false);
+        setShowDatePicker(false);
     };
 
     const showDatepicker = () => {
-        setShow(true);
+        setShowDatePicker(true);
     };
 
+    
+
     const enviarDatos = async () => {
+        if (!selectedCategory || !selectedAmbiente || !serial || !estado || !observacion || !tipoObjeto || !marca || !valor || !date) {
+            setModalMessage('Por favor completa todos los campos');
+            setModalVisibleError(true);
+            return;
+        }
+
         const formData = {
             id_cate: selectedCategory,
             id_amb: selectedAmbiente,
@@ -91,14 +104,15 @@ const RegisterObjets = () => {
             val_obj: parseFloat(valor),
             fech_adqui: date.toISOString().split('T')[0],
         };
+
         try {
             await crearObj(formData, token);
-            setMensaje('El objeto se registró correctamente');
-            setModalVisible(true); // Abrir el modal al registrar correctamente
+            setModalMessage('El objeto se registró correctamente');
+            setModalVisibleSuccess(true);
         } catch (error) {
             console.log('Error al enviar los datos del objeto', error);
-            setMensaje('Error al agregar el objeto. Inténtalo de nuevo.');
-            setModalVisible(true); // Abrir el modal al ocurrir un error
+            setModalMessage('Error al agregar el objeto. Inténtalo de nuevo.');
+            setModalVisibleError(true);
         }
     };
 
@@ -110,129 +124,180 @@ const RegisterObjets = () => {
         setSelectedAmbiente(itemValue);
     };
 
-    const closeModal = () => {
-        setModalVisible(false);
-        setMensaje('');
+    const closeModalSuccess = () => {
+        setModalVisibleSuccess(false);
+        setModalMessage('');
+    };
+
+    const closeModalError = () => {
+        setModalVisibleError(false);
+        setModalMessage('');
     };
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.containerForm} showsVerticalScrollIndicator={false}>
-                <Text style={styles.title}>Registrar Objeto</Text>
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Serial"
-                    onChangeText={setSerial}
-                    value={serial}
-                />
-
-                <Picker
-                    selectedValue={selectedAmbiente}
-                    onValueChange={handleAmbienteChange}
-                    style={styles.input}>
-                    <Picker.Item label="Seleccione un Ambiente" value="" />
-                    {ambientes.map((ambiente) => (
-                        <Picker.Item key={ambiente.amb_id} label={ambiente.nom_amb} value={ambiente.id_amb} />
-                    ))}
-                </Picker>
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Observación"
-                    onChangeText={setObservacion}
-                    value={observacion}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tipo De Objeto"
-                    onChangeText={setTipoObjeto}
-                    value={tipoObjeto}
-                />
-
-                <Picker
-                    selectedValue={selectedCategory}
-                    onValueChange={handleCategoryChange}
-                    style={styles.input}>
-                    <Picker.Item label="Seleccione una Categoria" value="" />
-                    {categorias.map((categoria) => (
-                        <Picker.Item key={categoria.id_cate} label={categoria.nom_cate} value={categoria.id_cate} />
-                    ))}
-                </Picker>
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Marca"
-                    onChangeText={setMarca}
-                    value={marca}
-                />
-                <Picker
-                    style={styles.input}
-                    selectedValue={estado}
-                    onValueChange={(itemValue) => setEstado(itemValue)}
-                >
-                    <Picker.Item label="Seleccione Estado" value="" />
-                    <Picker.Item label="ACTIVO" value="ACTIVO" />
-                    <Picker.Item label="EN USO" value="EN USO" />
-                    <Picker.Item label="DADO DE BAJA" value="DADO DE BAJA" />
-                </Picker>
-
-                <TextInput
-                    style={styles.input}
-                    placeholder="Valor"
-                    keyboardType="numeric"
-                    onChangeText={setValor}
-                    value={valor}
-                />
-                <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
-                    <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
-                </TouchableOpacity>
-                {show && (
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        value={date}
-                        mode="date"
-                        display="default"
-                        onChange={onChange}
+            <View style={styles.titulo}>
+                <Text style={styles.tituloText}>Registrar Objeto</Text>
+            </View>
+            <View style={styles.containerRegit}>
+                <FontAwesomeIcon name="plus-square" size={60} style={styles.regist} />
+            </View>
+            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <View style={styles.containerForm}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Serial"
+                        onChangeText={setSerial}
+                        value={serial}
                     />
-                )}
-                <Button title="Registrar" onPress={enviarDatos} color={'#39A900'} />
+                    <View style={styles.select}>
+                        <Picker
+                            selectedValue={selectedAmbiente}
+                            onValueChange={handleAmbienteChange}
+                            style={styles.select1}>
+                            <Picker.Item label="Seleccione un Ambiente" value="" />
+                            {ambientes.map((ambiente) => (
+                                <Picker.Item key={ambiente.id_amb.toString()} label={ambiente.nom_amb} value={ambiente.id_amb} />
+                            ))}
+                        </Picker>
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Observación"
+                        onChangeText={setObservacion}
+                        value={observacion}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Tipo De Objeto"
+                        onChangeText={setTipoObjeto}
+                        value={tipoObjeto}
+                    />
+                    <View style={styles.select}>
+                        <Picker
+                            selectedValue={selectedCategory}
+                            onValueChange={handleCategoryChange}
+                            style={styles.select1}>
+                            <Picker.Item label="Seleccione una Categoria" value="" />
+                            {categorias.map((categoria) => (
+                                <Picker.Item key={categoria.id_cate.toString()} label={categoria.nom_cate} value={categoria.id_cate} />
+                            ))}
+                        </Picker>
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Marca"
+                        onChangeText={setMarca}
+                        value={marca}
+                    />
+                    <View style={styles.select}>
+                        <Picker
+                            selectedValue={estado}
+                            onValueChange={(itemValue) => setEstado(itemValue)}
+                            style={styles.select1}>
+                            <Picker.Item label="Seleccione Estado" value="" />
+                            <Picker.Item label="ACTIVO" value="ACTIVO" />
+                            <Picker.Item label="EN USO" value="EN USO" />
+                            <Picker.Item label="DADO DE BAJA" value="DADO DE BAJA" />
+                        </Picker>
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Valor"
+                        keyboardType="numeric"
+                        onChangeText={setValor}
+                        value={valor}
+                    />
+                    <View style={styles.containerInput}>
+                        <TouchableOpacity onPress={showDatepicker} style={styles.inputDate}>
+                            <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+                            <FontAwesomeIcon name="calendar" size={20} style={styles.calendarIcon} />
+                        </TouchableOpacity>
+                        {showDatePicker && (
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={date}
+                                mode="date"
+                                display="default"
+                                onChange={onChange}
+                            />
+                        )}
+                    </View>
+                    <TouchableOpacity onPress={enviarDatos} style={styles.button}>
+                        <FontAwesomeIcon name="qrcode" size={40} />
+                        <Text style={styles.buttonText}>Crear</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
-
+            {/* Modal de éxito */}
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalVisible}
-                onRequestClose={closeModal}
+                visible={modalVisibleSuccess}
+                onRequestClose={closeModalSuccess}
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalMessage}>{mensaje}</Text>
-                        <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModal}>
+                        <Text style={styles.modalMessage}>{modalMessage}</Text>
+                        <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModalSuccess}>
                             <Text style={styles.modalButtonText}>Cerrar</Text>
                         </Pressable>
                     </View>
                 </View>
             </Modal>
-
-            <TouchableOpacity onPress={navigateToHome}>
-                <Text style={styles.registerLink}>Volver al inicio</Text>
-            </TouchableOpacity>
+            {/* Modal de error */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleError}
+                onRequestClose={closeModalError}
+            >
+                <View style={styles.modalBackground}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalMessageError}>{modalMessage}</Text>
+                        <Pressable style={[styles.modalButton, styles.modalButtonClose]} onPress={closeModalError}>
+                            <Text style={styles.modalButtonText}>Cerrar</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
+        alignItems: 'center',
         flex: 1,
+    },
+    titulo: {
+        width: '100%',
+        height: 60,
+        alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
+        backgroundColor: '#39A900',
+    },
+    tituloText: {
+        fontSize: 24,
+        color: 'white',
+    },
+    containerRegit: {
+        width: '89%',
+        borderBottomWidth: 1,
+        alignItems: 'flex-end',
+    },
+    regist: {
+        margin: '1%',
     },
     scrollContainer: {
-        width: '100%',
+        width: '80%',
+        height: 500,
+        alignSelf: 'center',
     },
     containerForm: {
-        flexGrow: 1,
+        width: '100%',
+        marginTop: 50,
+        alignItems: 'center',
         justifyContent: 'center',
     },
     input: {
@@ -241,24 +306,61 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 4,
+        width: '100%',
+        height: 50,
     },
-    title: {
-        marginBottom: 32,
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#39A900',
-        textAlign: 'center',
+    select: {
+        flexDirection: 'row',
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 4,
+        width: '100%',
+        alignItems: 'center',
+        height: 50,
+    },
+    textInputLabel: {
+        fontSize: 16,
+        marginRight: 10,
+        flex: 1,
+    },
+    select1: {
+        flex: 1,
     },
     inputDate: {
         flexDirection: 'row',
         padding: 10,
-        borderBottomWidth: 1,
-        borderColor: 'rgb(133, 133, 133)',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 4,
+        height: 50,
         alignItems: 'center',
-        marginBottom: 16,
+    },
+    calendarIcon: {
+        marginLeft: 5,
     },
     dateText: {
         fontSize: 16,
+        flex: 1,
+    },
+    containerInput: {
+        width: '100%',
+    },
+    button: {
+        flexDirection: 'row',
+        width: 160,
+        height: 50,
+        backgroundColor: '#39A900',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginTop: 50,
+    },
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        marginLeft: 10,
     },
     registerLink: {
         marginBottom: 16,
@@ -279,25 +381,27 @@ const styles = StyleSheet.create({
         width: '80%',
         alignItems: 'center',
     },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
     modalMessage: {
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 20,
+    },
+    modalMessageError: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
+        color: 'red',
     },
     modalButton: {
         padding: 10,
         borderRadius: 10,
         width: '40%',
         alignItems: 'center',
+        backgroundColor: '#39A900',
+        marginTop: 10,
     },
     modalButtonClose: {
-        backgroundColor: 'gray',
+        backgroundColor: '#39A900',
     },
     modalButtonText: {
         color: 'white',

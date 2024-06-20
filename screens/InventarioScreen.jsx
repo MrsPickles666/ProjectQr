@@ -59,7 +59,7 @@ const InventarioScreen = () => {
     
         return ambientes.map((ambiente, index) => (
             <TouchableOpacity key={index} style={styles.item} onPress={() => navigateDai(ambiente)}>
-                <FontAwesomeIcon name="laptop" size={30} style={styles.itemImage} />
+                <FontAwesomeIcon name="list-alt" size={30} style={styles.itemImage} />
                 <Text style={styles.listInv}>{`Inventario de ${toTitleCase(ambiente.nom_amb)}`}</Text>
                 <View style={styles.option}>
                     <TouchableOpacity onPress={() => navigateDai(ambiente)}>

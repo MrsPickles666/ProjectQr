@@ -56,7 +56,7 @@ const AmbienteScreen = () => {
                     cen_fk: editCentro,
                 }),
             });
-    
+
             if (response.ok) {
                 const updatedAmbientes = ambientes.map(amb =>
                     amb.id_amb === selectedAmbiente.id_amb ? { ...amb, nom_amb: editNombre, cen_fk: editCentro } : amb
@@ -79,7 +79,7 @@ const AmbienteScreen = () => {
                 const response = await fetch('http://192.168.81.71:3000/ambiente/all');
                 const data = await response.json();
                 setAmbientes(data.data);
-                setFilteredAmbientes(data.data);
+                setFilteredAmbientes(data.data); // Asegúrate de actualizar también los ambientes filtrados si es necesario
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -99,7 +99,7 @@ const AmbienteScreen = () => {
 
         fetchAmbientes();
         fetchCentros();
-    }, []);
+    }, [navigation]);
 
     useEffect(() => {
         // Filtrar ambientes cuando cambia la consulta de búsqueda
@@ -112,6 +112,7 @@ const AmbienteScreen = () => {
             setFilteredAmbientes(filteredData);
         }
     }, [searchQuery, ambientes]);
+
 
     return (
         <View style={styles.container}>

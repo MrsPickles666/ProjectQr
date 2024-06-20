@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { AppState, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 const AppStateManager = ({ children }) => {
@@ -32,10 +31,10 @@ const AppStateManager = ({ children }) => {
       appState.current = nextAppState;
     };
 
-    AppState.addEventListener('change', handleAppStateChange);
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
+      subscription.remove();
       clearTimeout(timeoutRef.current);
     };
   }, []);

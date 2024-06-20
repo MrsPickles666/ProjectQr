@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { View, Text, ScrollView, TextInput, StyleSheet, Button, TouchableOpacity, BackHandler, Modal, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crearUsu from '../api/user';
 import { Picker } from '@react-native-picker/picker';
@@ -16,11 +16,10 @@ const RegisterScreen = () => {
   const [telefono, setTelefono] = useState('');
   const [token, setToken] = useState('');
   const [mensaje, setMensaje] = useState('');
-
   const [role, setRole] = useState('');
   const [roles, setRoles] = useState([]);
-
-  const navigation = useNavigation('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     const obtenerToken = async () => {
@@ -32,7 +31,6 @@ const RegisterScreen = () => {
       }
     };
     obtenerToken();
-
     obtenerRoles();
   }, []);
 
@@ -66,11 +64,31 @@ const RegisterScreen = () => {
     try {
       await crearUsu(formData, token);
       setMensaje('El usuario se registró correctamente');
+      setModalVisible(true);
     } catch (error) {
       console.log('Error al enviar los datos del usuario', error);
       setMensaje('Error al agregar al usuario. Inténtalo de nuevo.');
+      setModalVisible(true);
     }
   };
+  const closeModal = () => {
+    setModalVisible(false);
+    navigation.navigate('Login');
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate('Login');
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [navigation])
+  );
 
   return (
     <View style={styles.container}>
@@ -89,15 +107,17 @@ const RegisterScreen = () => {
           value={lastName}
         />
 
-        <Picker
-          style={styles.input}
-          selectedValue={documentType}
-          onValueChange={(itemValue) => setDocumentType(itemValue)}
-        >
-          <Picker.Item label="Tipo de Documento" value="" />
-          <Picker.Item label="CC" value="CC" />
-          <Picker.Item label="TI" value="TI" />
-        </Picker>
+        <View style={styles.selectContainer}>
+          <Picker
+            style={styles.select}
+            selectedValue={documentType}
+            onValueChange={(itemValue) => setDocumentType(itemValue)}
+          >
+            <Picker.Item label="Tipo de Documento" value="" />
+            <Picker.Item label="CC" value="CC" />
+            <Picker.Item label="TI" value="TI" />
+          </Picker>
+        </View>
 
         <TextInput
           style={styles.input}
@@ -106,14 +126,16 @@ const RegisterScreen = () => {
           onChangeText={setDocumentNumber}
           value={documentNumber} />
 
-        <Picker
-          selectedValue={role}
-          onValueChange={(itemValue) => setRole(itemValue)}
-          style={styles.input}>
-          {roles.map((role) => {
-            return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />;
-          })}
-        </Picker>
+        <View style={styles.selectContainer}>
+          <Picker
+            selectedValue={role}
+            onValueChange={(itemValue) => setRole(itemValue)}
+            style={styles.select}>
+            {roles.map((role) => {
+              return <Picker.Item key={role.id_Rol} label={role.nom_Rol} value={role.id_Rol} />;
+            })}
+          </Picker>
+        </View>
 
         <TextInput
           style={styles.input}
@@ -125,6 +147,7 @@ const RegisterScreen = () => {
         <TextInput
           style={styles.input}
           placeholder='Telefono'
+          keyboardType="numeric"
           onChangeText={setTelefono}
           value={telefono}
         />
@@ -140,6 +163,24 @@ const RegisterScreen = () => {
         </TouchableOpacity>
         <Button title="Listo" onPress={enviarDatos} color={'#39A900'} />
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{mensaje}</Text>
+            <View style={styles.modalButtons}>
+              <Pressable style={[styles.modalButton, styles.modalButtonConfirm]} onPress={closeModal}>
+                <Text style={styles.modalButtonText}>Cerrar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -163,6 +204,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
+    width: '100%',
+    height: 50,
+  },
+  selectContainer: {
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    width: '100%',
+    height: 50,
+    justifyContent: 'center',
+  },
+  select: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     marginBottom: 32,
@@ -176,6 +232,44 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#39A900',
     textDecorationLine: 'underline',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 10,
+    width: 120,
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#39A900',
+  },
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

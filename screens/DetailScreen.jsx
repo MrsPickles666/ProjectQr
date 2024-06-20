@@ -29,8 +29,10 @@ const DetailScreen = () => {
 const [objetosTodos, setObjetosTodos] = useState([]);
 
     const navigateToCrear = () => {
-        navigation.navigate('RegisterObjets');
-    }
+        navigation.navigate('RegisterObjets', {
+            refresh: true, // Indicar que se debe refrescar la pantalla al regresar
+        });
+    };
 
     useEffect(() => {
         const fetchObjetosAmbiente = async () => {
@@ -50,7 +52,8 @@ const [objetosTodos, setObjetosTodos] = useState([]);
         };
     
         fetchObjetosAmbiente();
-    }, [ambienteId]);
+    }, [ambienteId]); // Aquí se agrega ambienteId como dependencia
+    
     
 
 
@@ -154,7 +157,7 @@ const [objetosTodos, setObjetosTodos] = useState([]);
                     obser_obj: editObservaciones,
                 }),
             });
-
+    
             if (response.ok) {
                 const updatedObjetos = objetos.map(obj =>
                     obj.id_obj === selectedObjeto.id_obj ? {
@@ -178,6 +181,7 @@ const [objetosTodos, setObjetosTodos] = useState([]);
             console.error('Error:', error);
         }
     };
+    
 
     const handleDownloadConfirmation = () => {
         setConfirmModalVisible(false);  // Cerrar el modal de confirmación
